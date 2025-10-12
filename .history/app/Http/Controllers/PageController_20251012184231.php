@@ -15,12 +15,12 @@ class PageController extends Controller
     public function menu()
     {
         // SEBELUM: return view('menu');
-        return view('page.menu'); // SESUDAH
+        return view('pages.menu'); // SESUDAH
     }
 
     public function about()
     {
         // SEBELUM: return view('about');
-        return view('page.about'); // SESUDAH
+        return view('pages.about'); // SESUDAH
     }
 }

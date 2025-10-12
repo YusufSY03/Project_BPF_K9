@@ -19,13 +19,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Rute Halaman Admin yang Dilindungi
 Route::get('/admin', function () {
     if (session('role') === 'admin') {
-        return view('dashboard.adminDashboard');
+        return view('dashboards.adminDashboard');
     }
     return redirect()->route('login')->withErrors(['auth' => 'Silakan login sebagai admin.']);
 })->name('admin');
 Route::get('/owner', function () {
     if (session('role') === 'owner') {
-        return view('dashboard.ownerDashboard');
+        return view('ownerDashboard');
     }
     return redirect()->route('login')->withErrors(['auth' => 'Silakan login sebagai owner.']);
 })->name('owner');

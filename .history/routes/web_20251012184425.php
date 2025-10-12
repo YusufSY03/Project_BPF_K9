@@ -25,7 +25,7 @@ Route::get('/admin', function () {
 })->name('admin');
 Route::get('/owner', function () {
     if (session('role') === 'owner') {
-        return view('dashboard.ownerDashboard');
+        return view('ownerDashboard');
     }
     return redirect()->route('login')->withErrors(['auth' => 'Silakan login sebagai owner.']);
 })->name('owner');

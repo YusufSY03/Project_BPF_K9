@@ -21,6 +21,6 @@ class PageController extends Controller
     public function about()
     {
         // SEBELUM: return view('about');
-        return view('page.about'); // SESUDAH
+        return view('pages.about'); // SESUDAH
     }
 }

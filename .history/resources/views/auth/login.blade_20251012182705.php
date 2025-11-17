@@ -34,7 +34,6 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 24px; /* Tambahan padding untuk mobile */
     }
 
     .login-container {
@@ -128,10 +127,6 @@
     }
     .error { background-color: #fee2e2; color: #b91c1c; }
     .status { background-color: #dcfce7; color: #166534; }
-    
-    .register-link { text-align: center; margin-top: 16px; }
-    .register-link p { margin: 0; }
-    .register-link a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
 
     /* Responsive untuk mobile */
     @media (max-width: 768px) {
@@ -157,6 +152,7 @@
 
     <div class="login-form">
       <h2>Login Akun</h2>
+      
 
       @if ($errors->any())
         <div class="error">{{ $errors->first() }}</div>
@@ -168,35 +164,16 @@
 
       <form method="POST" action="{{ route('login.post') }}">
         @csrf
-        
-        {{-- ==== PERUBAHAN DI SINI ==== --}}
         <div class="field">
-          <label for="email">Alamat Email</label>
-          <input id="email" name="email" class="input" type="email" value="{{ old('email') }}" required autofocus>
+          <label for="username">Username</label>
+          <input id="username" name="username" class="input" value="{{ old('username') }}" required autofocus>
         </div>
-        {{-- ==== SEBELUMNYA 'username' SEKARANG 'email' ==== --}}
-        
         <div class="field">
           <label for="password">Password</label>
           <input id="password" name="password" class="input" type="password" required>
         </div>
-        
-        {{-- Opsional: Tambahkan "Ingat Saya"
-        <div class="field" style="display: flex; justify-content: space-between; align-items: center;">
-            <label for="remember" style="margin:0; font-weight:normal;">
-                <input type="checkbox" name="remember" id="remember" style="margin-right: 8px;">
-                Ingat Saya
-            </label>
-        </div>
-        --}}
-        
-        <button class="btn" type="submit" style="margin-top: 16px;">Masuk</button>
+        <button class="btn" type="submit">Masuk</button>
       </form>
-      
-      <div class="register-link">
-        <p>Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
-      </div>
-      
     </div>
   </div>
 

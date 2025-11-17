@@ -49,7 +49,7 @@
     <div class="sidebar-header">Owner Panel</div>
     <nav class="sidebar-nav">
       <a href="{{ route('owner') }}" class="active">Dashboard</a>
-      <a href="{{ route('owner.users.index') }}">Manajemen User</a>
+      <a href="#">Manajemen User</a>
       <a href="#">Laporan Keuangan</a>
       <a href="#">Pengaturan</a>
       <a href="{{ route('home') }}">Lihat Situs</a>

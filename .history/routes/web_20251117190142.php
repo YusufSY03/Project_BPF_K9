@@ -1,14 +1,15 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserManagementController;
-use Illuminate\Support\Facades\Route;
 
 // Rute Halaman Publik (Nyamaw)
 Route::get('/home', [PageController::class, 'home'])->name('home');
 Route::get('/menu', [PageController::class, 'menu'])->name('menu');
 Route::get('/about', [PageController::class, 'about'])->name('about');
+
 
 // Rute Autentikasi (Login & Logout)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -22,7 +23,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin', function () {
         return view('dashboard.adminDashboard');
     })->name('admin');
-
+    
     // Nanti, rute lain khusus admin bisa ditaruh di sini
 });
 
@@ -32,26 +33,26 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
         return view('dashboard.ownerDashboard');
     })->name('owner');
     Route::get('/owner/users', [UserManagementController::class, 'index'])
-        ->name('owner.users.index');
+         ->name('owner.users.index');
     // Rute CREATE (Menampilkan form)
     Route::get('/owner/users/create', [UserManagementController::class, 'create'])
-        ->name('owner.users.create');
-
+         ->name('owner.users.create');
+         
     // Rute STORE (Menyimpan data dari form)
     Route::post('/owner/users', [UserManagementController::class, 'store'])
-        ->name('owner.users.store');
+         ->name('owner.users.store');
     // Rute EDIT (Menampilkan form edit)
     // {user} adalah parameter (ID user)
     Route::get('/owner/users/{user}/edit', [UserManagementController::class, 'edit'])
-        ->name('owner.users.edit');
-
+         ->name('owner.users.edit');
+         
     // Rute UPDATE (Menyimpan perubahan dari form edit)
     Route::put('/owner/users/{user}', [UserManagementController::class, 'update'])
-        ->name('owner.users.update');
+         ->name('owner.users.update');
     // Rute DELETE (Menghapus user)
     Route::delete('/owner/users/{user}', [UserManagementController::class, 'destroy'])
-        ->name('owner.users.destroy');
-
+         ->name('owner.users.destroy');
+    
     // Di Langkah 7, rute CRUD User akan kita taruh di sini
 });
 

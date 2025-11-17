@@ -135,21 +135,17 @@
       <li><a href="{{ route('menu') }}" class="nav-link">Menu</a></li>
       <li><a href="{{ route('about') }}" class="nav-link">About</a></li>
     </ul>
-   <div class="navbar-auth">
-  {{-- Logika baru menggunakan Auth::check() --}}
-  @auth
-    {{-- Tampilkan nama user yang login dari database --}}
-    <span class="welcome-text">Halo, {{ Auth::user()->name }}</span>
-    <form action="{{ route('logout') }}" method="POST" style="margin:0;">
-      @csrf
-      <button type="submit" class="btn-primary-outline">Logout</button>
-    </form>
-  @else
-    {{-- INI YANG BARU: Tombol Login + Register untuk tamu --}}
-    <a href="{{ route('login') }}" class="nav-link" style="font-weight:600;">Login</a>
-    <a href="{{ route('register') }}" class="btn-primary-outline">Register</a> 
-  @endauth
-</div>
+    <div class="navbar-auth">
+      @if (session('role'))
+        <span class="welcome-text">Halo, {{ session('user_name') ?? 'User' }}</span>
+        <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+          @csrf
+          <button type="submit" class="btn-primary-outline">Logout</button>
+        </form>
+      @else
+        <a href="{{ route('login') }}" class="btn-primary-outline">Login</a>
+      @endif
+    </div>
   </div>
 </nav>
 

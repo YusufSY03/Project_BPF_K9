@@ -43,26 +43,17 @@ class AuthController extends Controller
         // 2. Coba lakukan autentikasi (login)
         $credentials = $request->only('email', 'password');
 
-        // ...
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             // Jika berhasil
             $request->session()->regenerate();
 
-            // -- PERUBAHAN DIMULAI DI SINI --
-            // Cek role user yang baru login
-            $user = Auth::user();
-
-            if ($user->role === 'admin') {
-                return redirect()->route('admin')->with('status', 'Berhasil login sebagai Admin.');
-            } elseif ($user->role === 'owner') {
-                return redirect()->route('owner')->with('status', 'Berhasil login sebagai Owner.');
-            } else {
-                // Untuk 'user' biasa
-                return redirect()->route('home')->with('status', 'Berhasil login.');
-            }
-            // -- PERUBAHAN SELESAI --
+            // PENTING:
+            // Saat ini kita arahkan semua login ke 'home'.
+            // Di langkah selanjutnya, setelah kita punya 'role',
+            // kita akan ubah ini untuk redirect ke 'admin' atau 'owner'.
+            
+            return redirect()->route('home')->with('status', 'Berhasil login.');
         }
-        // ...
 
         // 3. Jika gagal
         return back()
@@ -93,7 +84,7 @@ class AuthController extends Controller
     public function showRegisterForm()
     {
         if (Auth::check()) {
-            return redirect()->route('home');
+             return redirect()->route('home');
         }
 
         return view('auth.register');

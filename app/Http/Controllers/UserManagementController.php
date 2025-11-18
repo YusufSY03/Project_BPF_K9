@@ -1,43 +1,41 @@
 <?php
 
-namespace App\Http;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
-    /**
-     * Menampilkan halaman daftar user (READ).
-     */
+    // ... fungsi index(), create() ...
+
     public function index()
     {
         $users = User::where('role', '!=', 'owner')
-            ->orderBy('id', 'desc')
-            ->get();
+                     ->orderBy('id', 'desc')
+                     ->get();
 
         return view('dashboard.userManagement', [
-            'users' => $users,
+            'users' => $users
         ]);
     }
 
-    /**
-     * Menampilkan formulir untuk membuat user baru (CREATE).
-     */
     public function create()
     {
         return view('dashboard.userForm');
     }
+
 
     /**
      * Menyimpan user baru ke database (STORE).
      */
     public function store(Request $request)
     {
+        // ... validasi ...
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -52,22 +50,21 @@ class UserManagementController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('owner.users.index')
-            ->with('status', 'User baru berhasil ditambahkan.');
+        // INI YANG PENTING
+        // Pastikan ini mengarah ke 'users.index'
+        return redirect()->route('users.index')
+                         ->with('status', 'User baru berhasil ditambahkan.');
     }
 
-    /**
-     * Menampilkan formulir untuk mengedit user (EDIT).
-     */
+    // ... fungsi edit() ...
     public function edit(User $user)
     {
         if ($user->role === 'owner') {
-            return redirect()->route('owner.users.index')
-                ->withErrors('Anda tidak bisa mengedit akun Owner.');
+            return redirect()->route('users.index')
+                             ->withErrors('Anda tidak bisa mengedit akun Owner.');
         }
-
         return view('dashboard.userForm', [
-            'user' => $user,
+            'user' => $user
         ]);
     }
 
@@ -76,6 +73,7 @@ class UserManagementController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // ... validasi ...
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -88,37 +86,26 @@ class UserManagementController extends Controller
             'email' => $request->email,
             'role' => $request->role,
         ];
-
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
-
         $user->update($data);
 
-        return redirect()->route('owner.users.index')
-            ->with('status', 'Data user berhasil diperbarui.');
+        // INI JUGA PENTING
+        // Pastikan ini mengarah ke 'users.index'
+        return redirect()->route('users.index')
+                         ->with('status', 'Data user berhasil diperbarui.');
     }
 
-    // ===============================================
-    // FUNGSI BARU UNTUK 'DELETE'
-    // ===============================================
-
-    /**
-     * Menghapus user dari database (DESTROY).
-     */
+    // ... fungsi destroy() ...
     public function destroy(User $user)
     {
-        // Keamanan ekstra: Pastikan Owner tidak terhapus
         if ($user->role === 'owner') {
-            return redirect()->route('owner.users.index')
-                ->withErrors('Akun Owner tidak bisa dihapus.');
+            return redirect()->route('users.index')
+                             ->withErrors('Akun Owner tidak bisa dihapus.');
         }
-
-        // Hapus user
         $user->delete();
-
-        // Redirect dengan pesan sukses
-        return redirect()->route('owner.users.index')
-            ->with('status', 'User berhasil dihapus.');
+        return redirect()->route('users.index')
+                         ->with('status', 'User berhasil dihapus.');
     }
 }

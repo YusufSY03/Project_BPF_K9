@@ -4,31 +4,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nyamaw - Cita Rasa Otentik Rumahan</title>
+  <title>Menu Lengkap - Nyamaw</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    /* =================================
-       PENGATURAN DASAR & SKEMA WARNA
-       ================================= */
+    /* CSS di sini sama persis dengan halaman home.blade.php untuk konsistensi */
     :root {
       --primary-color: #FF6347;
-      /* Tomato */
       --secondary-color: #333333;
-      /* Dark Gray */
       --bg-color: #fdfaf8;
-      /* Soft Cream */
       --text-color: #4a4a4a;
       --card-bg: #ffffff;
       --font-primary: 'Poppins', sans-serif;
       --font-secondary: 'Playfair Display', serif;
       --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
       --radius: 12px;
-    }
-
-    * {
-      box-sizing: border-box;
     }
 
     .navbar-auth {
@@ -40,6 +31,10 @@
     .welcome-text {
       font-weight: 600;
       color: var(--text-color);
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
@@ -63,9 +58,6 @@
       color: var(--secondary-color);
     }
 
-    /* =================================
-       NAVBAR
-       ================================= */
     .navbar {
       background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(10px);
@@ -125,51 +117,25 @@
       color: #fff;
     }
 
-    /* =================================
-       HERO SECTION
-       ================================= */
-    .hero {
+    .page-header {
       text-align: center;
-      padding: 100px 0;
-    }
-
-    .hero h1 {
-      font-size: 4rem;
-      line-height: 1.2;
-      margin: 0 0 16px 0;
-    }
-
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: 0 auto 32px auto;
-      color: #777;
-    }
-
-    .hero img {
-      width: 100%;
-      max-width: 800px;
-      margin-top: 48px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    /* =================================
-       FEATURED MENU SECTION
-       ================================= */
-    .featured-menu {
       padding: 80px 0;
-      text-align: center;
+      background-color: var(--secondary-color);
+      color: #fff;
     }
 
-    .featured-menu h2 {
-      font-size: 2.5rem;
-      margin-bottom: 48px;
+    .page-header h1 {
+      color: #fff;
+      font-size: 3.5rem;
+    }
+
+    .full-menu {
+      padding: 80px 0;
     }
 
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 32px;
     }
 
@@ -179,11 +145,8 @@
       box-shadow: var(--shadow);
       overflow: hidden;
       text-align: left;
-      transition: transform 0.3s;
-    }
-
-    .menu-card:hover {
-      transform: translateY(-10px);
+      display: flex;
+      flex-direction: column;
     }
 
     .menu-card img {
@@ -194,20 +157,32 @@
 
     .menu-card-body {
       padding: 24px;
+      flex-grow: 1;
+    }
+
+    .menu-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .menu-card h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.5rem;
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .menu-card .price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      white-space: nowrap;
+      margin-left: 16px;
     }
 
     .menu-card p {
-      margin: 0;
+      margin: 8px 0 0 0;
     }
 
-    /* =================================
-       FOOTER
-       ================================= */
     .footer {
       background: var(--secondary-color);
       color: #fff;
@@ -233,66 +208,98 @@
     <div class="container">
       <a href="{{ route('home') }}" class="navbar-brand">Nyamaw 🐾</a>
       <ul class="navbar-nav">
-        <li><a href="{{ route('home') }}" class="nav-link active">Home</a></li>
-        <li><a href="{{ route('menu') }}" class="nav-link">Menu</a></li>
+        <li><a href="{{ route('home') }}" class="nav-link">Home</a></li>
+        <li><a href="{{ route('menu') }}" class="nav-link active">Menu</a></li>
         <li><a href="{{ route('about') }}" class="nav-link">About</a></li>
       </ul>
       <div class="navbar-auth">
-        {{-- Logika baru menggunakan Auth::check() --}}
-        @auth
-        {{-- Tampilkan nama user yang login dari database --}}
-        <span class="welcome-text">Halo, {{ Auth::user()->name }}</span>
+        @if (session('role'))
+        <span class="welcome-text">Halo, {{ session('user_name') ?? 'User' }}</span>
         <form action="{{ route('logout') }}" method="POST" style="margin:0;">
           @csrf
           <button type="submit" class="btn-primary-outline">Logout</button>
         </form>
         @else
-        {{-- INI YANG BARU: Tombol Login + Register untuk tamu --}}
-        <a href="{{ route('login') }}" class="nav-link" style="font-weight:600;">Login</a>
-        <a href="{{ route('register') }}" class="btn-primary-outline">Register</a>
-        @endauth
+        <a href="{{ route('login') }}" class="btn-primary-outline">Login</a>
+        @endif
       </div>
     </div>
   </nav>
 
   <main>
-    <section class="hero">
+    <section class="page-header">
       <div class="container">
-        <h1>Sajian Lezat, Momen Hangat.</h1>
-        <p>Rasakan kelezatan masakan rumahan otentik dari Nyamaw, dibuat dari bahan-bahan segar pilihan dan resep warisan keluarga.</p>
-        <a href="#" class="btn-primary-outline">Lihat Semua Menu</a>
-        <img src="https://via.placeholder.com/800x500/FF6347/FFFFFF?text=Hidangan+Spesial+Nyamaw" alt="Hidangan Spesial Nyamaw">
+        <h1>Menu Lengkap Kami</h1>
+        <p>Semua hidangan spesial kami siap untuk Anda nikmati.</p>
       </div>
     </section>
 
-    <section class="featured-menu">
+    {{-- ... kode navbar dan header ... --}}
+
+    <section class="full-menu">
       <div class="container">
-        <h2>Menu Favorit Pelanggan</h2>
         <div class="menu-grid">
+
+          {{-- LOOPING DATA DARI DATABASE --}}
+          @forelse($menuItems as $item)
           <div class="menu-card">
-            <img src="https://via.placeholder.com/300x220/fde68a/000000?text=Chicken+Steak" alt="Chicken Steak">
+            {{-- Gambar --}}
+            <img src="{{ $item->image_url ?? 'https://via.placeholder.com/300x220?text=No+Image' }}" alt="{{ $item->name }}">
+
             <div class="menu-card-body">
-              <h3>Chicken Steak</h3>
-              <p>Steak ayam juicy disajikan dengan saus barbekyu dan kentang goreng.</p>
+              <div class="menu-card-header">
+                <h3>{{ $item->name }}</h3>
+                <span class="price">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
+              </div>
+              {{-- === TAMBAHAN BARU: LOGIKA TOMBOL === --}}
+              <div style="margin-top: 16px; margin-bottom: 16px;">
+                @auth
+                {{-- JIKA SUDAH LOGIN: Tampilkan tombol Pesan --}}
+                @if($item->availability_status != 'sold_out')
+                {{-- Kita akan buat route 'cart.add' nanti --}}
+                <form action="{{ route('cart.add', $item->id) }}" method="POST">
+                  @csrf
+                  <button type="submit" class="btn-primary-outline" style="width: 100%; cursor: pointer;">
+                    🛒 Pesan Sekarang
+                  </button>
+                </form>
+                @else
+                <button disabled class="btn-primary-outline" style="width: 100%; opacity: 0.5; cursor: not-allowed;">
+                  Habis Terjual
+                </button>
+                @endif
+                @else
+                {{-- JIKA BELUM LOGIN: Arahkan ke halaman Login --}}
+                <a href="{{ route('login') }}" class="btn-primary-outline" style="width: 100%; display: block; text-align: center; background-color: #f3f4f6; border-color: #d1d5db; color: #6b7280;">
+                  Login untuk Memesan
+                </a>
+                @endauth
+              </div>
+              <p>{{ $item->description }}</p>
+
+              {{-- Tampilkan Status Ketersediaan --}}
+              <div style="margin-top: 12px;">
+                @if($item->availability_status == 'sold_out')
+                <span style="background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">Habis</span>
+                @else
+                <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">Tersedia</span>
+                @endif
+                <small style="color: #666; margin-left: 8px;">{{ $item->category }}</small>
+              </div>
             </div>
           </div>
-          <div class="menu-card">
-            <img src="https://via.placeholder.com/300x220/fca5a5/000000?text=Katsu+Lada+Hitam" alt="Katsu Lada Hitam">
-            <div class="menu-card-body">
-              <h3>Katsu Lada Hitam</h3>
-              <p>Potongan ayam katsu renyah dibalut saus lada hitam yang hangat.</p>
-            </div>
+          @empty
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+            <h3>Belum ada menu yang tersedia saat ini.</h3>
+            <p>Silakan kembali lagi nanti!</p>
           </div>
-          <div class="menu-card">
-            <img src="https://via.placeholder.com/300x220/a7f3d0/000000?text=Ayam+Suwir+Pedas" alt="Ayam Suwir Pedas">
-            <div class="menu-card-body">
-              <h3>Ayam Suwir Pedas</h3>
-              <p>Suwiran ayam dengan bumbu pedas khas nusantara yang bikin nagih.</p>
-            </div>
-          </div>
+          @endforelse
+
         </div>
       </div>
     </section>
+
+    {{-- ... kode footer ... --}}
   </main>
 
   <footer class="footer">

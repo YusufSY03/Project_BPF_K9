@@ -215,7 +215,7 @@
       <div class="navbar-auth">
         @auth
         {{-- TOMBOL KERANJANG (BARU) --}}
-        <a href="{{ route('cart') }}" class="btn-primary-outline" style="position: relative;">
+        <a href="#" class="btn-primary-outline" style="position: relative;">
           🛒 Keranjang
           {{-- Hitung jumlah barang di session --}}
           @if(session('cart'))

@@ -212,30 +212,8 @@
         <li><a href="{{ route('menu') }}" class="nav-link active">Menu</a></li>
         <li><a href="{{ route('about') }}" class="nav-link">About</a></li>
       </ul>
-      <div class="navbar-auth">
-        @auth
-        {{-- TOMBOL KERANJANG (BARU) --}}
-        <a href="{{ route('cart') }}" class="btn-primary-outline" style="position: relative;">
-          🛒 Keranjang
-          {{-- Hitung jumlah barang di session --}}
-          @if(session('cart'))
-          <span style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -5px;">
-            {{ count(session('cart')) }}
-          </span>
-          @endif
-        </a>
-
-        <span class="welcome-text">Halo, {{ Auth::user()->name }}</span>
-        <form action="{{ route('logout') }}" method="POST" style="margin:0;">
-          @csrf
-          <button type="submit" class="btn-primary-outline">Logout</button>
-        </form>
-        @else
-        <a href="{{ route('login') }}" class="nav-link" style="font-weight:600;">Login</a>
-        <a href="{{ route('register') }}" class="btn-primary-outline">Register</a>
-        @endauth
-      </div>
-
+      
+      
     </div>
   </nav>
 

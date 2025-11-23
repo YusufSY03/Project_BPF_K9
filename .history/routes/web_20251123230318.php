@@ -50,9 +50,7 @@ Route::middleware(['auth', 'role:owner,admin'])->group(function () {
     Route::put('/management/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
     Route::delete('/management/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
 });
-// -- TAMBAHAN BARU: MANAJEMEN ORDER --
-    Route::get('/management/orders', [App\Http\Controllers\OrderManagementController::class, 'index'])
-         ->name('orders.index');
+
 // == GRUP KHUSUS MEMBER (USER LOGIN) ==
 Route::middleware(['auth'])->group(function () {
     // Keranjang Belanja

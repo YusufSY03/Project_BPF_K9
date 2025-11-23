@@ -243,20 +243,20 @@
                 Dashboard
             </a>
             {{-- Link Pesanan Masuk (BARU) --}}
-            <a href="{{ route('orders.index') }}"
-                class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">
-                Pesanan Masuk
-            </a>
+      <a href="{{ route('orders.index') }}" 
+         class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">
+         Pesanan Masuk
+      </a>
 
             <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
                 Manajemen User
             </a>
             {{-- Tampilkan HANYA jika role-nya owner --}}
             @if (Auth::user()->role === 'owner')
-            <a href="{{ route('owner.menu.index') }}"
-                class="{{ request()->routeIs('owner.menu.*') ? 'active' : '' }}">
-                Manajemen Menu
-            </a>
+                <a href="{{ route('owner.menu.index') }}"
+                    class="{{ request()->routeIs('owner.menu.*') ? 'active' : '' }}">
+                    Manajemen Menu
+                </a>
             @endif
 
 

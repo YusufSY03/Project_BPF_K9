@@ -13,6 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        
         // Email: owner@nyamaw.com
         // Password: ownerNyamaw
         User::updateOrCreate(

@@ -213,29 +213,16 @@
         <li><a href="{{ route('about') }}" class="nav-link">About</a></li>
       </ul>
       <div class="navbar-auth">
-        @auth
-        {{-- TOMBOL KERANJANG (BARU) --}}
-        <a href="{{ route('cart') }}" class="btn-primary-outline" style="position: relative;">
-          🛒 Keranjang
-          {{-- Hitung jumlah barang di session --}}
-          @if(session('cart'))
-          <span style="background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -5px;">
-            {{ count(session('cart')) }}
-          </span>
-          @endif
-        </a>
-
-        <span class="welcome-text">Halo, {{ Auth::user()->name }}</span>
+        @if (session('role'))
+        <span class="welcome-text">Halo, {{ session('user_name') ?? 'User' }}</span>
         <form action="{{ route('logout') }}" method="POST" style="margin:0;">
           @csrf
           <button type="submit" class="btn-primary-outline">Logout</button>
         </form>
         @else
-        <a href="{{ route('login') }}" class="nav-link" style="font-weight:600;">Login</a>
-        <a href="{{ route('register') }}" class="btn-primary-outline">Register</a>
-        @endauth
+        <a href="{{ route('login') }}" class="btn-primary-outline">Login</a>
+        @endif
       </div>
-
     </div>
   </nav>
 
@@ -249,12 +236,12 @@
 
     {{-- ... kode navbar dan header ... --}}
     <div class="container" style="margin-top: 20px;">
-      @if(session('status'))
-      <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        {{ session('status') }}
-      </div>
-      @endif
-    </div>
+    @if(session('status'))
+        <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            {{ session('status') }}
+        </div>
+    @endif
+</div>
     <section class="full-menu">
       <div class="container">
         <div class="menu-grid">

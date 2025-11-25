@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator; // <-- PENTING: Import ini
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Menggunakan gaya Bootstrap 5 yang lebih rapi dan tanpa ikon raksasa
+        Paginator::useBootstrapFive();
     }
 }

@@ -69,3 +69,6 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/', function () {
     return redirect()->route('home');
 });
+
+// Tambahkan route ini untuk AJAX hitung ongkir
+Route::post('/check-shipping', [OrderController::class, 'checkShipping'])->name('check.shipping');

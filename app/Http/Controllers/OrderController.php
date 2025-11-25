@@ -4,27 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB; // Untuk transaksi database
+use Illuminate\Support\Facades\DB; 
 use App\Models\MenuItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Support\Facades\Http;
 
 class OrderController extends Controller
 {
-    /**
-     * Menambahkan item ke keranjang (Session)
-     */
+    // ... (Fungsi addToCart, cart, dan remove TETAP SAMA, tidak diubah) ...
     public function addToCart($id)
     {
         $menu = MenuItem::find($id);
-
-        if(!$menu) {
-            return redirect()->back()->with('error', 'Menu tidak ditemukan!');
-        }
+        if (!$menu) return redirect()->back()->with('error', 'Menu tidak ditemukan!');
 
         $cart = session()->get('cart', []);
-
-        if(isset($cart[$id])) {
+        if (isset($cart[$id])) {
             $cart[$id]['quantity']++;
         } else {
             $cart[$id] = [
@@ -34,27 +29,20 @@ class OrderController extends Controller
                 "image" => $menu->image_url
             ];
         }
-
         session()->put('cart', $cart);
         return redirect()->back()->with('status', 'Berhasil ditambahkan ke keranjang!');
     }
 
-    /**
-     * Menampilkan halaman keranjang
-     */
     public function cart()
     {
         return view('page.cart');
     }
 
-    /**
-     * Menghapus item dari keranjang
-     */
     public function remove(Request $request)
     {
-        if($request->id) {
+        if ($request->id) {
             $cart = session()->get('cart');
-            if(isset($cart[$request->id])) {
+            if (isset($cart[$request->id])) {
                 unset($cart[$request->id]);
                 session()->put('cart', $cart);
             }
@@ -62,49 +50,70 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Menampilkan Halaman Checkout (Konfirmasi)
-     */
     public function checkout()
     {
-        if(!session('cart') || count(session('cart')) == 0) {
+        if (!session('cart') || count(session('cart')) == 0) {
             return redirect()->route('menu');
         }
         return view('page.checkout');
     }
 
-    /**
-     * Memproses Pesanan (Simpan ke Database)
-     */
+    // --- FITUR BARU: AJAX Check Ongkir ---
+    public function checkShipping(Request $request)
+    {
+        // Validasi input
+        if(!$request->latitude || !$request->longitude) {
+            return response()->json(['status' => 'error', 'message' => 'Lokasi tidak valid']);
+        }
+
+        // Panggil fungsi hitungOngkir yang sudah kamu buat
+        $result = $this->hitungOngkir($request->latitude, $request->longitude);
+        
+        return response()->json($result);
+    }
+
     public function processCheckout(Request $request)
     {
         $cart = session('cart');
 
-        if(!$cart) {
+        if (!$cart) {
             return redirect()->route('menu')->with('error', 'Keranjang kosong!');
         }
 
-        // Hitung total bayar
-        $totalAmount = 0;
-        foreach($cart as $id => $details) {
-            $totalAmount += $details['price'] * $details['quantity'];
-        }
+        // Validasi Lokasi Wajib Diisi
+        $request->validate([
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ], [
+            'latitude.required' => 'Mohon pilih lokasi pengantaran di peta!',
+        ]);
 
-        // Gunakan Database Transaction agar aman (semua tersimpan atau tidak sama sekali)
-        DB::transaction(function () use ($request, $cart, $totalAmount) {
-            
-            // 1. Simpan data ke tabel 'orders'
+        // Hitung ulang ongkir di server (agar tidak bisa dimanipulasi user)
+        $shippingResult = $this->hitungOngkir($request->latitude, $request->longitude);
+        $shippingPrice = ($shippingResult['status'] == 'success') ? $shippingResult['ongkir'] : 0;
+
+        // Hitung total bayar (Subtotal + Ongkir)
+        $subtotal = 0;
+        foreach ($cart as $id => $details) {
+            $subtotal += $details['price'] * $details['quantity'];
+        }
+        $grandTotal = $subtotal + $shippingPrice;
+
+        DB::transaction(function () use ($request, $cart, $grandTotal, $shippingPrice) {
+            // 1. Simpan data ke tabel 'orders' dengan ongkir & lokasi
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'total_amount' => $totalAmount,
-                'status' => 'pending', // Default status
+                'total_amount' => $grandTotal,
+                'shipping_price' => $shippingPrice, // Simpan biaya ongkir
+                'latitude' => $request->latitude,   // Simpan lat
+                'longitude' => $request->longitude, // Simpan long
+                'status' => 'pending', 
                 'payment_method' => $request->payment_method,
-                // payment_proof nanti bisa ditambahkan fitur upload gambarnya
-                'payment_proof' => null, 
+                'payment_proof' => null,
             ]);
 
-            // 2. Simpan detail menu ke tabel 'order_items'
-            foreach($cart as $id => $details) {
+            // 2. Simpan detail menu
+            foreach ($cart as $id => $details) {
                 OrderItem::create([
                     'order_id' => $order->id,
                     'menu_item_id' => $id,
@@ -114,10 +123,52 @@ class OrderController extends Controller
             }
         });
 
-        // 3. Kosongkan keranjang belanja
         session()->forget('cart');
+        return redirect()->route('menu')->with('status', 'Pesanan berhasil! Total: Rp ' . number_format($grandTotal));
+    }
+    
+    // Fungsi Hitung Ongkir (Milikmu, sedikit disesuaikan return-nya untuk error handling)
+    public function hitungOngkir($userLat, $userLong)
+    {
+        $apiKey = env('ORS_API_KEY');
+        $storeLat = env('STORE_LAT');
+        $storeLong = env('STORE_LONG');
+        $pricePerKm = env('PRICE_PER_KM', 3000); // Default 3000 jika env kosong
 
-        // 4. Arahkan ke halaman menu (atau halaman sukses nanti)
-        return redirect()->route('menu')->with('status', 'Pesanan berhasil dibuat! Mohon tunggu konfirmasi Admin.');
+        if (empty($apiKey)) {
+            return ['status' => 'error', 'message' => 'API Key belum disetting'];
+        }
+
+        try {
+            $response = Http::get('https://api.openrouteservice.org/v2/directions/driving-car', [
+                'api_key' => $apiKey,
+                'start' => "$storeLong,$storeLat",
+                'end' => "$userLong,$userLat"
+            ]);
+    
+            if ($response->successful()) {
+                $data = $response->json();
+                
+                // Cek apakah data segments tersedia
+                if(!isset($data['features'][0]['properties']['segments'][0]['distance'])) {
+                    return ['status' => 'error', 'message' => 'Rute tidak ditemukan (terlalu jauh/beda pulau)'];
+                }
+
+                $jarakMeter = $data['features'][0]['properties']['segments'][0]['distance'];
+                $jarakKm = round($jarakMeter / 1000, 2);
+    
+                $totalOngkir = $jarakKm * $pricePerKm;
+    
+                return [
+                    'status' => 'success',
+                    'jarak' => $jarakKm,
+                    'ongkir' => $totalOngkir
+                ];
+            }
+        } catch (\Exception $e) {
+            return ['status' => 'error', 'message' => 'Koneksi API Gagal'];
+        }
+
+        return ['status' => 'error', 'message' => 'Gagal menghitung jarak. Cek koneksi atau kuota API.'];
     }
 }

@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            // Kita tambahkan kolom yang hilang
+            if (!Schema::hasColumn('orders', 'shipping_price')) {
+                $table->decimal('shipping_price', 10, 2)->default(0)->after('total_amount');
+            }
+            if (!Schema::hasColumn('orders', 'latitude')) {
+                $table->string('latitude')->nullable()->after('shipping_price');
+            }
+            if (!Schema::hasColumn('orders', 'longitude')) {
+                $table->string('longitude')->nullable()->after('latitude');
+            }
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn(['shipping_price', 'latitude', 'longitude']);
+        });
+    }
+};

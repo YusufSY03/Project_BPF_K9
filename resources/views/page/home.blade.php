@@ -31,17 +31,6 @@
       box-sizing: border-box;
     }
 
-    .navbar-auth {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .welcome-text {
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
     body {
       margin: 0;
       font-family: var(--font-primary);
@@ -109,15 +98,29 @@
       color: var(--primary-color);
     }
 
+    .navbar-auth {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .welcome-text {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
     .btn-primary-outline {
       background: transparent;
       color: var(--primary-color);
       border: 2px solid var(--primary-color);
-      padding: 10px 20px;
+      padding: 8px 20px;
       text-decoration: none;
       border-radius: 50px;
       font-weight: 600;
       transition: all 0.2s;
+      display: inline-block;
+      cursor: pointer;
+      /* Tambahan agar kursor berubah saat hover */
     }
 
     .btn-primary-outline:hover {
@@ -134,7 +137,7 @@
     }
 
     .hero h1 {
-      font-size: 4rem;
+      font-size: 3.5rem;
       line-height: 1.2;
       margin: 0 0 16px 0;
     }
@@ -164,6 +167,11 @@
 
     .featured-menu h2 {
       font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .featured-menu p.subtitle {
+      color: #777;
       margin-bottom: 48px;
     }
 
@@ -180,10 +188,12 @@
       overflow: hidden;
       text-align: left;
       transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
     }
 
     .menu-card:hover {
-      transform: translateY(-10px);
+      transform: translateY(-5px);
     }
 
     .menu-card img {
@@ -194,15 +204,29 @@
 
     .menu-card-body {
       padding: 24px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .menu-card h3 {
       margin: 0 0 8px 0;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
     }
 
-    .menu-card p {
-      margin: 0;
+    .menu-card .description {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+
+    .menu-card .price {
+      font-weight: 700;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      display: block;
+      margin-bottom: 16px;
     }
 
     /* =================================
@@ -235,19 +259,25 @@
       <ul class="navbar-nav">
         <li><a href="{{ route('home') }}" class="nav-link active">Home</a></li>
         <li><a href="{{ route('menu') }}" class="nav-link">Menu</a></li>
-        <li><a href="{{ route('about') }}" class="nav-link">About</a></li>
+        @auth
+        <li><a href="{{ route('orders.history') }}" class="nav-link">Riwayat</a></li>
+        @endauth
       </ul>
       <div class="navbar-auth">
-        {{-- Logika baru menggunakan Auth::check() --}}
         @auth
-        {{-- Tampilkan nama user yang login dari database --}}
+        {{-- Tombol Keranjang --}}
+        <a href="{{ route('cart') }}" class="btn-primary-outline" style="position: relative; margin-right: 8px;">
+          🛒 <span style="font-size: 0.9rem;">{{ count((array) session('cart')) }}</span>
+        </a>
+
         <span class="welcome-text">Halo, {{ Auth::user()->name }}</span>
+
+        {{-- TOMBOL LOGOUT DIPERBAIKI (Konsisten dengan Menu) --}}
         <form action="{{ route('logout') }}" method="POST" style="margin:0;">
           @csrf
           <button type="submit" class="btn-primary-outline">Logout</button>
         </form>
         @else
-        {{-- INI YANG BARU: Tombol Login + Register untuk tamu --}}
         <a href="{{ route('login') }}" class="nav-link" style="font-weight:600;">Login</a>
         <a href="{{ route('register') }}" class="btn-primary-outline">Register</a>
         @endauth
@@ -256,41 +286,50 @@
   </nav>
 
   <main>
+    {{-- HERO SECTION --}}
     <section class="hero">
       <div class="container">
-        <h1>Sajian Lezat, Momen Hangat.</h1>
+        <h1>Sajian Lezat, <br>Momen Hangat.</h1>
         <p>Rasakan kelezatan masakan rumahan otentik dari Nyamaw, dibuat dari bahan-bahan segar pilihan dan resep warisan keluarga.</p>
-        <a href="#" class="btn-primary-outline">Lihat Semua Menu</a>
-        <img src="https://via.placeholder.com/800x500/FF6347/FFFFFF?text=Hidangan+Spesial+Nyamaw" alt="Hidangan Spesial Nyamaw">
+
+        <a href="{{ route('menu') }}" class="btn-primary-outline" style="padding: 12px 32px; font-size: 1.1rem;">Lihat Semua Menu &rarr;</a>
+
+        <img src="https://via.placeholder.com/800x500/fde68a/000000?text=Hidangan+Spesial+Nyamaw" alt="Hidangan Spesial Nyamaw">
       </div>
     </section>
 
+    {{-- FEATURED MENU SECTION --}}
     <section class="featured-menu">
       <div class="container">
         <h2>Menu Favorit Pelanggan</h2>
+        <p class="subtitle">Pilihan terbaik minggu ini yang wajib kamu coba!</p>
+
         <div class="menu-grid">
+          {{-- LOOPING DATA REAL DARI DATABASE --}}
+          @forelse($featuredMenus as $item)
           <div class="menu-card">
-            <img src="https://via.placeholder.com/300x220/fde68a/000000?text=Chicken+Steak" alt="Chicken Steak">
+            {{-- Gambar dari Storage --}}
+            <img src="{{ $item->image_url ? asset('storage/' . $item->image_url) : 'https://via.placeholder.com/300x220?text=No+Image' }}"
+              alt="{{ $item->name }}">
+
             <div class="menu-card-body">
-              <h3>Chicken Steak</h3>
-              <p>Steak ayam juicy disajikan dengan saus barbekyu dan kentang goreng.</p>
+              <h3>{{ $item->name }}</h3>
+              <p class="description">{{ Str::limit($item->description, 80) }}</p>
+              <span class="price">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
+
+              <a href="{{ route('menu') }}" class="btn-primary-outline" style="text-align: center; display: block;">Pesan Sekarang</a>
             </div>
           </div>
-          <div class="menu-card">
-            <img src="https://via.placeholder.com/300x220/fca5a5/000000?text=Katsu+Lada+Hitam" alt="Katsu Lada Hitam">
-            <div class="menu-card-body">
-              <h3>Katsu Lada Hitam</h3>
-              <p>Potongan ayam katsu renyah dibalut saus lada hitam yang hangat.</p>
-            </div>
+          @empty
+          <div style="grid-column: 1 / -1; padding: 40px; background: #fff; border-radius: 12px;">
+            <p>Belum ada menu unggulan yang ditampilkan.</p>
+            @if(Auth::check() && Auth::user()->role === 'owner')
+            <a href="{{ route('owner.menu.create') }}" class="btn-primary-outline">Tambah Menu Sekarang</a>
+            @endif
           </div>
-          <div class="menu-card">
-            <img src="https://via.placeholder.com/300x220/a7f3d0/000000?text=Ayam+Suwir+Pedas" alt="Ayam Suwir Pedas">
-            <div class="menu-card-body">
-              <h3>Ayam Suwir Pedas</h3>
-              <p>Suwiran ayam dengan bumbu pedas khas nusantara yang bikin nagih.</p>
-            </div>
-          </div>
+          @endforelse
         </div>
+
       </div>
     </section>
   </main>
@@ -303,5 +342,4 @@
   </footer>
 
 </body>
-
 </html>

@@ -205,6 +205,68 @@
             font-weight: 600;
         }
 
+        /* GRID DASHBOARD YANG LEBIH RAPI */
+        .card-grid {
+            display: grid;
+            /* Membuat 4 kolom otomatis yang responsive */
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            /* Jarak antar kartu lebih rapat */
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            /* Hapus display:flex dari sini agar tabel tidak berantakan */
+        }
+
+        .card-grid .card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .card-grid .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            /* Efek hover sedikit */
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            /* Font judul lebih kecil & elegan */
+            color: var(--muted);
+            margin: 0 0 10px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            /* Huruf besar semua agar tegas */
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            /* Angka besar tapi tidak raksasa */
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .card-change {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .input,
         .select {
             width: 100%;
@@ -227,113 +289,123 @@
             color: var(--muted);
             margin-top: 8px;
         }
+
         /* ... CSS form yang lama ... */
 
-    /* === TAMBAHAN CSS UNTUK FORM SEARCH & FILTER === */
-    .search-filter-container {
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-        align-items: center;
-        padding: 16px; /* Tambahan padding agar tidak mepet */
-    }
+        /* === TAMBAHAN CSS UNTUK FORM SEARCH & FILTER === */
+        .search-filter-container {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 16px;
+            /* Tambahan padding agar tidak mepet */
+        }
 
-    /* Memperbaiki tampilan input dan select agar sejajar */
-    .search-filter-container .input,
-    .search-filter-container .select {
-        margin-bottom: 0; /* Hapus margin bawah default form */
-        height: 42px; /* Samakan tinggi */
-    }
+        /* Memperbaiki tampilan input dan select agar sejajar */
+        .search-filter-container .input,
+        .search-filter-container .select {
+            margin-bottom: 0;
+            /* Hapus margin bawah default form */
+            height: 42px;
+            /* Samakan tinggi */
+        }
 
-    /* Tombol Cari agar lebih terlihat */
-    .btn-search {
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0 20px;
-        height: 42px;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
+        /* Tombol Cari agar lebih terlihat */
+        .btn-search {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            height: 42px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .btn-reset {
-        background: #e5e7eb;
-        color: var(--text);
-        text-decoration: none;
-        border-radius: 8px;
-        padding: 0 20px;
-        height: 42px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-    /* === STYLE PAGINATION CUSTOM === */
-    /* Memperbaiki tampilan pagination bawaan Laravel/Bootstrap */
+        .btn-reset {
+            background: #e5e7eb;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            height: 42px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    /* Hapus icon SVG raksasa jika masih ada sisa */
-    nav svg { display: none; }
+        /* === STYLE PAGINATION CUSTOM === */
+        /* Memperbaiki tampilan pagination bawaan Laravel/Bootstrap */
 
-    /* Container pagination */
-    .pagination {
-        display: flex;
-        padding-left: 0;
-        list-style: none;
-        gap: 5px; /* Jarak antar kotak */
-        justify-content: center;
-        margin-top: 20px;
-    }
+        /* Hapus icon SVG raksasa jika masih ada sisa */
+        nav svg {
+            display: none;
+        }
 
-    /* Kotak nomor/tombol */
-    .page-link {
-        position: relative;
-        display: block;
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        color: var(--text);
-        text-decoration: none;
-        background-color: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        transition: all 0.2s;
-    }
+        /* Container pagination */
+        .pagination {
+            display: flex;
+            padding-left: 0;
+            list-style: none;
+            gap: 5px;
+            /* Jarak antar kotak */
+            justify-content: center;
+            margin-top: 20px;
+        }
 
-    /* Efek Hover (saat mouse lewat) */
-    .page-link:hover {
-        background-color: #f3f4f6;
-        color: var(--primary);
-        border-color: var(--primary);
-    }
+        /* Kotak nomor/tombol */
+        .page-link {
+            position: relative;
+            display: block;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            color: var(--text);
+            text-decoration: none;
+            background-color: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
 
-    /* Halaman yang Sedang Aktif */
-    .page-item.active .page-link {
-        z-index: 3;
-        color: #fff;
-        background-color: var(--primary); /* Warna Biru Dashboard */
-        border-color: var(--primary);
-    }
+        /* Efek Hover (saat mouse lewat) */
+        .page-link:hover {
+            background-color: #f3f4f6;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
 
-    /* Tombol Mati (Disabled) - misal: di halaman 1, tombol 'Prev' mati */
-    .page-item.disabled .page-link {
-        color: #9ca3af;
-        pointer-events: none;
-        background-color: #f9fafb;
-        border-color: #e5e7eb;
-    }
+        /* Halaman yang Sedang Aktif */
+        .page-item.active .page-link {
+            z-index: 3;
+            color: #fff;
+            background-color: var(--primary);
+            /* Warna Biru Dashboard */
+            border-color: var(--primary);
+        }
 
-    /* Sembunyikan teks ribet "Showing 1 to 10..." dari layout default jika mengganggu */
-    .hidden.sm\:flex-1.sm\:flex.sm\:items-center.sm\:justify-between {
-        display: none;
-    }
-    /* Tampilkan hanya navigasi nomornya saja */
-    div[role="navigation"] > div:nth-child(2) {
-        display: flex;
-        justify-content: center;
-    }
+        /* Tombol Mati (Disabled) - misal: di halaman 1, tombol 'Prev' mati */
+        .page-item.disabled .page-link {
+            color: #9ca3af;
+            pointer-events: none;
+            background-color: #f9fafb;
+            border-color: #e5e7eb;
+        }
+
+        /* Sembunyikan teks ribet "Showing 1 to 10..." dari layout default jika mengganggu */
+        .hidden.sm\:flex-1.sm\:flex.sm\:items-center.sm\:justify-between {
+            display: none;
+        }
+
+        /* Tampilkan hanya navigasi nomornya saja */
+        div[role="navigation"]>div:nth-child(2) {
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 

@@ -7,35 +7,64 @@ use App\Models\Order;
 
 class OrderManagementController extends Controller
 {
+    /**
+     * Menampilkan Daftar Pesanan (Tabel)
+     */
     public function index(Request $request)
     {
-        // 1. Siapkan Query Dasar
         $query = Order::with('user')->orderBy('created_at', 'desc');
 
-        // 2. Logika SEARCH (Pencarian)
+        // Logika Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                // Cari berdasarkan ID Order
                 $q->where('id', 'like', "%$search%")
-                  // ATAU Cari berdasarkan Nama User
                   ->orWhereHas('user', function($u) use ($search) {
                       $u->where('name', 'like', "%$search%");
                   });
             });
         }
 
-        // 3. Logika FILTER (Status)
+        // Logika Filter Status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // 4. Logika PAGINATION (10 data per halaman)
-        // withQueryString() penting agar saat ganti halaman, filter tidak hilang
         $orders = $query->paginate(10)->withQueryString();
 
         return view('dashboard.orderManagement', [
             'orders' => $orders
         ]);
+    }
+
+    // === FUNGSI INI YANG HILANG DARI FILE ANDA ===
+
+    /**
+     * Menampilkan Detail Pesanan
+     */
+    public function show(Order $order)
+    {
+        // Muat relasi user dan menu agar bisa ditampilkan
+        $order->load(['user', 'items.menu']);
+
+        return view('dashboard.orderDetail', [
+            'order' => $order
+        ]);
+    }
+
+    /**
+     * Mengubah Status Pesanan
+     */
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,processing,completed,cancelled'
+        ]);
+
+        $order->update([
+            'status' => $request->status
+        ]);
+
+        return redirect()->back()->with('status', 'Status pesanan berhasil diperbarui.');
     }
 }

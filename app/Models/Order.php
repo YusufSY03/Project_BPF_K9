@@ -9,20 +9,27 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'total_amount',
+        'shipping_price',
+        'latitude',       
+        'longitude',      
         'status',
         'payment_method',
         'payment_proof',
     ];
 
-    // Relasi: Satu order punya banyak item
     public function items()
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    // Relasi: Order dimiliki oleh satu user
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // RELASI BARU: Cek apakah order ini sudah direview
+    public function review()
+    {
+        return $this->hasOne(Review::class);
     }
 }

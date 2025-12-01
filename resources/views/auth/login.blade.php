@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,8 +13,10 @@
        SKEMA WARNA (SAMA SEPERTI HALAMAN ABOUT/HOME)
        ================================= */
     :root {
-      --primary-color: #FF6347; /* Tomato */
-      --secondary-color: #FFF0E5; /* Apricot White */
+      --primary-color: #FF6347;
+      /* Tomato */
+      --secondary-color: #FFF0E5;
+      /* Apricot White */
       --dark-color: #333;
       --light-color: #f4f4f4;
       --font-family: 'Poppins', sans-serif;
@@ -24,7 +27,10 @@
     /* =================================
        DESAIN BARU HALAMAN LOGIN
        ================================= */
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: var(--font-family);
@@ -34,7 +40,8 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 24px; /* Tambahan padding untuk mobile */
+      padding: 24px;
+      /* Tambahan padding untuk mobile */
     }
 
     .login-container {
@@ -57,11 +64,13 @@
       flex-direction: column;
       justify-content: center;
     }
+
     .login-branding h1 {
       font-size: 2.5rem;
       margin-top: 0;
       line-height: 1.2;
     }
+
     .login-branding p {
       font-size: 1.1rem;
       opacity: 0.9;
@@ -71,10 +80,12 @@
     .login-form {
       padding: 48px;
     }
+
     .login-form h2 {
       margin-top: 0;
       font-size: 1.8rem;
     }
+
     .login-form p.muted {
       margin-bottom: 24px;
       font-size: 0.9rem;
@@ -84,11 +95,13 @@
     .field {
       margin-bottom: 20px;
     }
+
     .field label {
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
     }
+
     .input {
       width: 100%;
       padding: 12px 16px;
@@ -97,6 +110,7 @@
       font-size: 1rem;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
+
     .input:focus {
       outline: none;
       border-color: var(--primary-color);
@@ -117,36 +131,61 @@
       font-size: 1rem;
       transition: background-color 0.2s;
     }
+
     .btn:hover {
       background-color: #e55337;
     }
 
-    .error, .status {
+    .error,
+    .status {
       padding: 12px;
       border-radius: 8px;
       margin-bottom: 16px;
     }
-    .error { background-color: #fee2e2; color: #b91c1c; }
-    .status { background-color: #dcfce7; color: #166534; }
-    
-    .register-link { text-align: center; margin-top: 16px; }
-    .register-link p { margin: 0; }
-    .register-link a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+
+    .error {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .register-link p {
+      margin: 0;
+    }
+
+    .register-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
 
     /* Responsive untuk mobile */
     @media (max-width: 768px) {
       .login-container {
         grid-template-columns: 1fr;
       }
+
       .login-branding {
-        display: none; /* Sembunyikan gambar di layar kecil */
+        display: none;
+        /* Sembunyikan gambar di layar kecil */
       }
+
       .login-form {
         padding: 32px;
       }
     }
   </style>
 </head>
+
 <body>
 
   <div class="login-container">
@@ -159,28 +198,28 @@
       <h2>Login Akun</h2>
 
       @if ($errors->any())
-        <div class="error">{{ $errors->first() }}</div>
+      <div class="error">{{ $errors->first() }}</div>
       @endif
 
       @if (session('status'))
-        <div class="status">{{ session('status') }}</div>
+      <div class="status">{{ session('status') }}</div>
       @endif
 
       <form method="POST" action="{{ route('login.post') }}">
         @csrf
-        
+
         {{-- ==== PERUBAHAN DI SINI ==== --}}
         <div class="field">
           <label for="email">Alamat Email</label>
           <input id="email" name="email" class="input" type="email" value="{{ old('email') }}" required autofocus>
         </div>
         {{-- ==== SEBELUMNYA 'username' SEKARANG 'email' ==== --}}
-        
+
         <div class="field">
           <label for="password">Password</label>
           <input id="password" name="password" class="input" type="password" required>
         </div>
-        
+
         {{-- Opsional: Tambahkan "Ingat Saya"
         <div class="field" style="display: flex; justify-content: space-between; align-items: center;">
             <label for="remember" style="margin:0; font-weight:normal;">
@@ -189,16 +228,22 @@
             </label>
         </div>
         --}}
-        
+
         <button class="btn" type="submit" style="margin-top: 16px;">Masuk</button>
+        <div style="text-align: center; margin: 15px 0; font-size: 0.9rem; color: #666;">Atau</div>
+
+        <a href="/auth/redirect-google" class="btn" style="background-color: #DB4437; color: #fff; text-align: center; margin-top: 0; display: block; text-decoration: none;">
+          Login with Google
+        </a>
       </form>
-      
+
       <div class="register-link">
         <p>Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
       </div>
-      
+
     </div>
   </div>
 
 </body>
+
 </html>

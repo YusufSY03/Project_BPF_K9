@@ -68,3 +68,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/', function () { return redirect()->route('home'); });
+
+Route::get('/auth/redirect-google', [AuthController::class, 'redirectToGoogle'])->name('redirect.google');
+Route::get('/oauthcallback', [AuthController::class, 'handleGoogleCallback']);

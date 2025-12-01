@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -124,5 +125,45 @@ class AuthController extends Controller
 
         // 4. Arahkan ke halaman home dengan pesan sukses
         return redirect()->route('home')->with('status', 'Akun Anda berhasil dibuat dan Anda telah login.');
+    }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+
+    public function handleGoogleCallback()
+    {
+        try {
+            // 1. Ambil data dari Google
+            $googleUser = Socialite::driver('google')->stateless()->user();
+
+            // 2. Cari apakah user dengan email ini sudah ada di database?
+            $findUser = User::where('email', $googleUser->email)->first();
+
+            if ($findUser) {
+                // KASUS A: User sudah pernah daftar sebelumnya
+                // Langsung login-kan saja
+                Auth::login($findUser);
+                return redirect()->route('home')->with('status', 'Berhasil login kembali!');
+            } else {
+                // KASUS B: User baru (belum ada di database)
+                // Kita buatkan akun baru secara otomatis
+                $newUser = User::create([
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'password' => Hash::make('password_google_dummy_123'), // Password acak (karena login via google)
+                    'role' => 'user' // Sesuaikan role default di aplikasimu (misal: 'user' atau 'customer')
+                ]);
+
+                // Langsung login-kan user baru tersebut
+                Auth::login($newUser);
+                return redirect()->route('home')->with('status', 'Selamat datang! Akun Anda berhasil dibuat.');
+            }
+        } catch (\Exception $e) {
+            // PENTING: Balikin ke sini (Redirect) supaya user tidak lihat layar hitam kalau error
+            return redirect()->route('login')->with('error', 'Gagal login dengan Google. Silahkan coba lagi.');
+        }
     }
 }

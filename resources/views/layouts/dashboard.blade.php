@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ asset('img/logo.png') }}" type="image/png">
     <title>@yield('title') | Nyamaw Dashboard</title>
 
     <style>

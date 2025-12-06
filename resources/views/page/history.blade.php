@@ -1,165 +1,204 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Riwayat Pesanan - Nyamaw</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-  <style>
-    :root { --primary-color: #FF6347; --secondary-color: #333; --bg-color: #fdfaf8; --text-color: #4a4a4a; --font-primary: 'Poppins', sans-serif; --font-secondary: 'Playfair Display', serif; }
-    body { margin: 0; font-family: var(--font-primary); background: var(--bg-color); color: var(--text-color); }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-    
-    .navbar { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); padding: 16px 0; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-    .navbar .container { display: flex; justify-content: space-between; align-items: center; }
-    .navbar-brand { font-family: var(--font-secondary); font-size: 1.8rem; text-decoration: none; color: var(--primary-color); }
-    .navbar-nav { list-style: none; margin: 0; padding: 0; display: flex; gap: 24px; }
-    .nav-link { text-decoration: none; color: var(--text-color); font-weight: 600; }
-    .nav-link:hover { color: var(--primary-color); }
-    .btn-primary-outline { background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); padding: 8px 16px; text-decoration: none; border-radius: 50px; font-weight: 600; }
-    .navbar-auth { display: flex; align-items: center; gap: 16px; }
+@extends('layouts.app')
 
-    .history-page { padding: 60px 0; }
-    .page-title { margin-bottom: 30px; color: var(--secondary-color); font-family: var(--font-secondary); }
-    
-    .order-card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #eee; }
-    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f3f4f6; padding-bottom: 16px; }
-    .order-id { font-weight: 700; color: var(--secondary-color); font-size: 1.1rem; }
-    .order-date { font-size: 0.9rem; color: #888; }
-    
-    .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
-    .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
-    .status-processing { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
-    .status-completed { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
-    .status-cancelled { background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
+@section('title', 'Riwayat Pesanan - Nyamaw')
 
-    .order-items { display: flex; flex-direction: column; gap: 12px; }
-    .item-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
-    .item-name { display: flex; align-items: center; gap: 10px; }
-    .item-name img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
-    
-    .order-footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #f3f4f6; }
-    .payment-section { margin-top: 15px; padding: 15px; background: #f9fafb; border-radius: 8px; font-size: 0.9rem; }
-    
-    /* Tombol Upload */
-    .file-input { margin-bottom: 10px; width: 100%; }
-    .btn-upload { background: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
-  </style>
-</head>
-<body>
+@section('custom-css')
+<style>
+    /* PAGE HEADER */
+    .page-header {
+        text-align: center;
+        padding-bottom: 40px;
+        background-color: var(--light);
+    }
+    .page-title {
+        font-family: var(--font-head);
+        font-size: 3rem;
+        color: var(--dark);
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+    .page-subtitle { color: var(--gray); font-size: 1.1rem; }
 
-  <nav class="navbar">
-    <div class="container">
-      <a href="{{ route('home') }}" class="navbar-brand">Nyamaw 🐾</a>
-      <ul class="navbar-nav">
-        <li><a href="{{ route('home') }}" class="nav-link">Home</a></li>
-        <li><a href="{{ route('menu') }}" class="nav-link">Menu</a></li>
-        <li><a href="{{ route('orders.history') }}" class="nav-link" style="color:var(--primary-color);">Riwayat Pesanan</a></li>
-      </ul>
-      <div class="navbar-auth">
-        <a href="{{ route('cart') }}" class="btn-primary-outline">
-            🛒 {{ count((array) session('cart')) }}
-        </a>
-        <span style="font-weight:600;">{{ Auth::user()->name }}</span>
+    /* GRID SYSTEM */
+    .history-section {
+        padding: 60px 20px 100px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); 
+        gap: 30px;
+    }
+
+    /* KARTU ORDER */
+    .order-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid #eee;
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    
+    /* Garis Aksen Kiri */
+    .order-card::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+        background: var(--primary);
+    }
+
+    .order-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+
+    /* HEADER KARTU */
+    .card-header {
+        padding: 20px 25px;
+        border-bottom: 2px dashed #f0f0f0;
+        display: flex; justify-content: space-between; align-items: center;
+        background: #fffcfb;
+    }
+    .order-id { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; color: var(--dark); }
+    .order-date { font-size: 0.85rem; color: #999; font-weight: 500; }
+
+    /* BADGE STATUS */
+    .status-badge { padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+    .status-pending { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+    .status-processing { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .status-completed { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .status-cancelled { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+    /* ISI KARTU */
+    .card-body { padding: 25px; flex-grow: 1; }
+    
+    .item-row { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+    .item-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
+    .item-details { flex: 1; }
+    .item-name { font-weight: 700; font-size: 1rem; color: var(--dark); display: block; }
+    .item-meta { font-size: 0.85rem; color: #777; }
+
+    /* FOOTER KARTU */
+    .card-footer { padding: 20px 25px; background: #fcfcfc; border-top: 1px solid #eee; }
+    .total-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+    .label-total { font-size: 0.9rem; color: #777; text-transform: uppercase; }
+    .price-total { font-family: var(--font-head); font-size: 1.8rem; font-weight: 900; color: var(--dark); line-height: 1; }
+
+    /* TOMBOL AKSI */
+    .action-box { background: white; border: 1px solid #e5e5e5; padding: 15px; border-radius: 10px; }
+    .btn-action { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 8px; font-weight: 700; text-decoration: none; border: none; cursor: pointer; transition: 0.2s; }
+    .btn-upload { background: var(--dark); color: white; }
+    .btn-review { background: #f59e0b; color: white; }
+    
+    @media (max-width: 600px) { .orders-grid { grid-template-columns: 1fr; } }
+</style>
+@endsection
+
+@section('content')
+
+    {{-- SPACER KHUSUS: Agar judul turun ke bawah --}}
+    <div style="height: 120px; width: 100%; background: var(--light);"></div>
+
+    <section class="page-header">
+      <div class="container">
+        <h1 class="page-title">Riwayat Pesanan</h1>
+        <p class="page-subtitle">Pantau status pesananmu di sini.</p>
       </div>
-    </div>
-  </nav>
+    </section>
 
-  <section class="history-page">
-    <div class="container">
-      <h2 class="page-title">Riwayat Pesanan Saya</h2>
-
-      @if(session('status'))
-        <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 24px;">{{ session('status') }}</div>
-      @endif
-
-      @forelse($orders as $order)
-        <div class="order-card">
-            <div class="order-header">
-                <div>
-                    <div class="order-id">Order #{{ $order->id }}</div>
-                    <div class="order-date">{{ $order->created_at->format('d M Y, H:i') }} WIB</div>
+    <section class="history-section">
+        <div class="container">
+            @if(session('status'))
+                <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 30px; font-weight: 600; text-align: center;">
+                    {{ session('status') }}
                 </div>
-                <div>
-                    @if($order->status == 'pending')
-                        <span class="status-badge status-pending">Menunggu Konfirmasi</span>
-                    @elseif($order->status == 'processing')
-                        <span class="status-badge status-processing">Sedang Dimasak</span>
-                    @elseif($order->status == 'completed')
-                        <span class="status-badge status-completed">Selesai</span>
-                    @else
-                        <span class="status-badge status-cancelled">Dibatalkan</span>
-                    @endif
-                </div>
-            </div>
+            @endif
 
-            <div class="order-items">
-                @foreach($order->items as $item)
-                    <div class="item-row">
-                        <div class="item-name">
-                            <img src="{{ $item->menu && $item->menu->image_url ? asset('storage/' . $item->menu->image_url) : 'https://via.placeholder.com/40' }}" alt="">
-                            <span>{{ $item->menu->name ?? 'Menu dihapus' }} <strong style="color:#888;">x{{ $item->quantity }}</strong></span>
+            <div class="orders-grid">
+                @forelse($orders as $order)
+                <div class="order-card">
+                    
+                    {{-- HEADER --}}
+                    <div class="card-header">
+                        <div>
+                            <div class="order-id">#{{ $order->id }}</div>
+                            <div class="order-date">{{ $order->created_at->format('d M Y • H:i') }}</div>
                         </div>
-                        <div>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</div>
+                        <div>
+                            @if($order->status == 'pending') <span class="status-badge status-pending">Menunggu</span>
+                            @elseif($order->status == 'processing') <span class="status-badge status-processing">Dimasak</span>
+                            @elseif($order->status == 'completed') <span class="status-badge status-completed">Selesai</span>
+                            @else <span class="status-badge status-cancelled">Batal</span> @endif
+                        </div>
                     </div>
-                @endforeach
-            </div>
 
-            <div class="order-footer">
-                <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                    <div>Total Bayar</div>
-                    <div style="color: var(--primary-color);">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</div>
+                    {{-- BODY --}}
+                    <div class="card-body">
+                        @foreach($order->items as $item)
+                        <div class="item-row">
+                            <img src="{{ $item->menu && $item->menu->image_url ? asset('storage/' . $item->menu->image_url) : 'https://via.placeholder.com/60' }}" class="item-img" alt="">
+                            <div class="item-details">
+                                <span class="item-name">{{ $item->menu->name ?? 'Menu dihapus' }}</span>
+                                <div class="item-meta">{{ $item->quantity }}x Rp {{ number_format($item->price, 0, ',', '.') }}</div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    {{-- FOOTER --}}
+                    <div class="card-footer">
+                        <div class="total-section">
+                            <div>
+                                <div class="label-total">Metode</div>
+                                <strong style="color:var(--dark);">{{ ucfirst($order->payment_method) }}</strong>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="label-total">Total Bayar</div>
+                                <div class="price-total">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</div>
+                            </div>
+                        </div>
+
+                        {{-- AKSI --}}
+                        @if($order->payment_method == 'transfer')
+                            <div class="action-box">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                    <span style="font-weight:700; font-size:0.9rem;">Bukti Transfer</span>
+                                    @if($order->payment_proof) <span style="color:#16a34a; font-weight:700; font-size:0.8rem;">✓ Terupload</span>
+                                    @else <span style="color:#dc2626; font-weight:700; font-size:0.8rem;">! Belum Upload</span> @endif
+                                </div>
+
+                                @if($order->status == 'pending')
+                                    <form action="{{ route('orders.uploadProof', $order->id) }}" method="POST" enctype="multipart/form-data" style="display: flex; gap: 5px;">
+                                        @csrf
+                                        <input type="file" name="payment_proof" required accept="image/*" style="width: 100%; font-size:0.9rem;">
+                                        <button type="submit" class="btn-action btn-upload" style="width: auto; padding: 8px 15px;">Kirim</button>
+                                    </form>
+                                @elseif($order->payment_proof)
+                                    <a href="{{ asset('storage/' . $order->payment_proof) }}" target="_blank" style="font-size:0.9rem; text-decoration:underline; color:var(--primary);">Lihat Gambar</a>
+                                @endif
+                            </div>
+                        @endif
+
+                        @if($order->status == 'completed')
+                            <div style="margin-top: 15px;">
+                                @if($order->review)
+                                    <div class="btn-action" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; cursor:default;">★ {{ $order->review->rating_stars }} Bintang</div>
+                                @else
+                                    <a href="{{ route('reviews.create', $order->id) }}" class="btn-action btn-review">⭐ Beri Ulasan</a>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
                 </div>
-
-                {{-- FITUR UPLOAD BUKTI BAYAR --}}
-                @if($order->payment_method == 'transfer')
-                    <div class="payment-section">
-                        <p style="margin-top:0; font-weight:bold;">Pembayaran Transfer</p>
-                        
-                        @if($order->payment_proof)
-                            <div style="color: #166534; margin-bottom: 10px;">✅ Bukti pembayaran sudah diupload.</div>
-                            <img src="{{ asset('storage/' . $order->payment_proof) }}" style="height: 100px; border-radius: 6px; border: 1px solid #ddd;">
-                        @else
-                            <p style="color:#c2410c;">⚠️ Silakan upload bukti transfer agar pesanan diproses.</p>
-                        @endif
-
-                        {{-- Form Upload (Muncul jika Pending dan Transfer) --}}
-                        @if($order->status == 'pending')
-                            <form action="{{ route('orders.uploadProof', $order->id) }}" method="POST" enctype="multipart/form-data" style="margin-top: 10px;">
-                                @csrf
-                                <input type="file" name="payment_proof" class="file-input" required accept="image/*">
-                                <button type="submit" class="btn-upload">Upload Bukti</button>
-                            </form>
-                        @endif
-                    </div>
-                @else
-                    <div class="payment-section">
-                        Metode: <strong>Bayar Tunai (Cash)</strong>
-                    </div>
-                @endif
-                {{-- TOMBOL REVIEW --}}
-                @if($order->status == 'completed')
-                    <div style="margin-top: 15px; text-align: right;">
-                        @if($order->review)
-                            <span style="color: #166534; font-weight: 600;">
-                                ★ Anda memberi {{ $order->review->rating_stars }} Bintang
-                            </span>
-                        @else
-                            <a href="{{ route('reviews.create', $order->id) }}" style="background: #f59e0b; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">
-                                ⭐ Beri Ulasan
-                            </a>
-                        @endif
-                    </div>
-                @endif
+                @empty
+                <div style="grid-column: 1 / -1; text-align: center; padding: 100px 20px;">
+                    <h2 style="color: #ccc;">Belum ada pesanan.</h2>
+                    <a href="{{ route('menu') }}" class="btn-main" style="background:var(--primary); color:white; padding:12px 25px; border-radius:50px; text-decoration:none;">LIHAT MENU</a>
+                </div>
+                @endforelse
             </div>
         </div>
-      @empty
-        <div style="text-align: center; padding: 60px; background: #fff; border-radius: 12px; border: 1px solid #eee;">
-            <h3>Belum ada riwayat pesanan.</h3>
-            <a href="{{ route('menu') }}" class="btn-primary-outline" style="background:var(--primary-color); color:white; margin-top:16px; display:inline-block;">Pesan Sekarang</a>
-        </div>
-      @endforelse
-    </div>
-  </section>
-</body>
-</html>
+    </section>
+
+@endsection

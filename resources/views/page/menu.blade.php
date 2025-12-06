@@ -1,190 +1,263 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Lengkap - Nyamaw</title>
+@extends('layouts.app')
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+@section('title', 'Menu Lengkap - Nyamaw')
 
-  <style>
-    :root {
-      --primary-color: #FF6347;
-      --secondary-color: #333333;
-      --bg-color: #fdfaf8;
-      --text-color: #4a4a4a;
-      --card-bg: #ffffff;
-      --font-primary: 'Poppins', sans-serif;
-      --font-secondary: 'Playfair Display', serif;
-      --shadow: 0 10px 20px rgba(0,0,0,0.05);
-      --radius: 12px;
+@section('custom-css')
+<style>
+    /* HEADER HALAMAN */
+    .page-header {
+        text-align: center;
+        padding-bottom: 40px;
+        background-color: var(--light);
     }
-    .navbar-auth { display: flex; align-items: center; gap: 16px; }
-    .welcome-text { font-weight: 600; color: var(--text-color); }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: var(--font-primary); background: var(--bg-color); color: var(--text-color); line-height: 1.7; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-    h1, h2, h3 { font-family: var(--font-secondary); color: var(--secondary-color); }
+    .page-title {
+        font-family: var(--font-head);
+        font-size: 3.5rem;
+        color: var(--dark);
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+    .page-subtitle {
+        color: var(--gray);
+        font-size: 1.1rem;
+    }
 
-    .navbar { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); padding: 16px 0; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-    .navbar .container { display: flex; justify-content: space-between; align-items: center; }
-    .navbar-brand { font-family: var(--font-secondary); font-size: 1.8rem; text-decoration: none; color: var(--primary-color); }
-    .navbar-nav { list-style: none; margin: 0; padding: 0; display: flex; gap: 24px; }
-    .nav-link { text-decoration: none; color: var(--text-color); font-weight: 600; transition: color 0.2s; }
-    .nav-link:hover, .nav-link.active { color: var(--primary-color); }
-    .btn-primary-outline { background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); padding: 8px 16px; text-decoration: none; border-radius: 50px; font-weight: 600; transition: all 0.2s; display: inline-block; cursor: pointer; }
-    .btn-primary-outline:hover { background: var(--primary-color); color: #fff; }
+    /* GRID MENU */
+    .menu-section {
+        padding: 60px 0 100px;
+    }
+    
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+    }
 
-    .page-header { text-align: center; padding: 80px 0; background-color: var(--secondary-color); color: #fff; }
-    .page-header h1 { color: #fff; font-size: 3.5rem; }
+    /* KARTU MENU */
+    .menu-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        border: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+    }
+    .menu-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
 
-    .full-menu { padding: 80px 0; }
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
-    .menu-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; text-align: left; display: flex; flex-direction: column; }
-    .menu-card img { width: 100%; height: 220px; object-fit: cover; }
-    .menu-card-body { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
-    .menu-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-    .menu-card h3 { margin: 0; font-size: 1.4rem; }
-    .menu-card .price { font-size: 1.2rem; font-weight: 700; color: var(--primary-color); white-space: nowrap; margin-left: 16px; }
-    .menu-card p { margin: 8px 0 0 0; flex-grow: 1; }
+    .menu-img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+    }
 
-    .footer { background: var(--secondary-color); color: #fff; text-align: center; padding: 48px 0; }
-    .footer p { margin: 0; }
-    .footer .copyright { opacity: 0.7; margin-top: 8px; font-size: 0.9rem; }
-  </style>
-</head>
-<body>
+    .menu-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
 
-  <nav class="navbar">
-  <div class="container">
-    <a href="{{ route('home') }}" class="navbar-brand">Nyamaw 🐾</a>
-    <ul class="navbar-nav">
-      <li><a href="{{ route('home') }}" class="nav-link">Home</a></li>
-      <li><a href="{{ route('menu') }}" class="nav-link active">Menu</a></li>
-      @auth
-        <li><a href="{{ route('orders.history') }}" class="nav-link">Riwayat</a></li>
-      @endauth
-      <li><a href="{{ route('about') }}" class="nav-link">About</a></li>
-    </ul>
-    <div class="navbar-auth">
-      @auth
-        <a href="{{ route('cart') }}" class="btn-primary-outline" style="position: relative;">
-            🛒 <span style="font-size: 0.9rem;">{{ count((array) session('cart')) }}</span>
-        </a>
-        <span class="welcome-text">Halo, {{ Auth::user()->name }}</span>
-        <form action="{{ route('logout') }}" method="POST" style="margin:0;">
-          @csrf
-          <button type="submit" class="btn-primary-outline">Logout</button>
-        </form>
-      @else
-        <a href="{{ route('login') }}" class="nav-link" style="font-weight:600;">Login</a>
-        <a href="{{ route('register') }}" class="btn-primary-outline">Register</a>
-      @endauth
-    </div>
-  </div>
-</nav>
+    .menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
 
-  <main>
+    .menu-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .menu-price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary);
+        white-space: nowrap;
+        margin-left: 10px;
+    }
+
+    .menu-rating {
+        font-size: 0.9rem;
+        color: #f59e0b; /* Warna Emas */
+        margin-bottom: 10px;
+        font-weight: 600;
+        display: flex; 
+        align-items: center;
+        gap: 5px;
+    }
+
+    .menu-desc {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 20px;
+        flex-grow: 1;
+    }
+
+    /* AREA PESAN */
+    .order-area {
+        margin-top: auto;
+    }
+
+    .order-form {
+        display: flex;
+        gap: 10px;
+    }
+
+    .qty-input {
+        width: 60px;
+        padding: 8px;
+        border: 2px solid #eee;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+        color: var(--dark);
+    }
+
+    .btn-pesan {
+        flex: 1;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .btn-pesan:hover {
+        background: #e55337;
+    }
+
+    .btn-habis {
+        width: 100%;
+        background: #eee;
+        color: #999;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: not-allowed;
+    }
+
+    .btn-login-msg {
+        display: block;
+        width: 100%;
+        text-align: center;
+        text-decoration: none;
+        background: #f3f4f6;
+        color: #666;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .status-badge {
+        margin-top: 15px;
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    .status-available { background: #dcfce7; color: #166534; }
+    .status-soldout { background: #fee2e2; color: #991b1b; }
+
+</style>
+@endsection
+
+@section('content')
+
+    {{-- SPACER KHUSUS: MEMAKSA KONTEN TURUN DI BAWAH NAVBAR --}}
+    <div style="height: 120px; width: 100%; background: var(--light);"></div>
+
+    {{-- HEADER --}}
     <section class="page-header">
       <div class="container">
-        <h1>Menu Lengkap Kami</h1>
-        <p>Semua hidangan spesial kami siap untuk Anda nikmati.</p>
+        <h1 class="page-title">Menu Lengkap</h1>
+        <p class="page-subtitle">Semua hidangan spesial kami siap untuk Anda nikmati.</p>
       </div>
     </section>
 
-    <div class="container" style="margin-top: 20px;">
-        @if(session('status'))
-            <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                {{ session('status') }}
-            </div>
-        @endif
-    </div>
-
-    <section class="full-menu">
+    {{-- KONTEN MENU --}}
+    <section class="menu-section">
       <div class="container">
+        
         <div class="menu-grid">
-
           @forelse($menuItems as $item)
-          <div class="menu-card">
-            {{-- Gambar --}}
-            <img src="{{ $item->image_url ? asset('storage/' . $item->image_url) : 'https://via.placeholder.com/300x220?text=No+Image' }}" alt="{{ $item->name }}">
-            
-            <div class="menu-card-body">
-              {{-- Header: Nama & Harga --}}
-              <div class="menu-card-header">
-                <h3>{{ $item->name }}</h3>
-                <span class="price">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
-              </div>
+            <div class="menu-card">
+              {{-- GAMBAR --}}
+              <img src="{{ $item->image_url ? asset('storage/' . $item->image_url) : 'https://via.placeholder.com/300x220?text=No+Image' }}" 
+                   class="menu-img" alt="{{ $item->name }}">
+              
+              <div class="menu-body">
+                {{-- NAMA & HARGA --}}
+                <div class="menu-header">
+                  <h3 class="menu-name">{{ $item->name }}</h3>
+                  <span class="menu-price">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
+                </div>
 
-              {{-- Rating Bintang --}}
-              <div style="margin-bottom: 12px; color: #f59e0b; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
-                @php $rating = $item->getRating(); @endphp
-                @if($rating > 0)
-                    <span>⭐ {{ $rating }}</span>
-                    <span style="color: #888; font-weight: normal; font-size: 0.8rem;">({{ $item->getReviewCount() }} ulasan)</span>
-                @else
-                    <span style="color: #888; font-weight: normal; font-size: 0.8rem;">Belum ada ulasan</span>
-                @endif
-              </div>
-
-              <p>{{ $item->description }}</p>
-
-              {{-- Form Pesan --}}
-              <div style="margin-top: 16px; margin-bottom: 16px;">
-                @auth
-                    @if($item->availability_status != 'sold_out')
-                        <form action="{{ route('cart.add', $item->id) }}" method="POST" style="display: flex; gap: 8px; align-items: center;">
-                            @csrf
-                            {{-- Input Jumlah --}}
-                            <input type="number" name="quantity" value="1" min="1" 
-                                   style="width: 60px; padding: 8px; border: 2px solid var(--primary-color); border-radius: 8px; text-align: center; font-weight: bold; color: var(--secondary-color);">
-                            {{-- Tombol Pesan --}}
-                            <button type="submit" class="btn-primary-outline" style="flex: 1; cursor: pointer; background: var(--primary-color); color: white;">
-                                🛒 Pesan
-                            </button>
-                        </form>
+                {{-- RATING --}}
+                <div class="menu-rating">
+                    @php $rating = $item->getRating(); @endphp
+                    @if($rating > 0)
+                        <span>⭐ {{ $rating }}</span> 
+                        <span style="color:#999; font-weight:normal; font-size:0.8rem;">({{ $item->getReviewCount() }} ulasan)</span>
                     @else
-                         <button disabled class="btn-primary-outline" style="width: 100%; opacity: 0.5; cursor: not-allowed; background: #eee; border-color: #ccc; color: #999;">
-                            Habis Terjual
-                        </button>
+                        <span style="color:#999; font-weight:normal;">Belum ada ulasan</span>
                     @endif
-                @else
-                    <a href="{{ route('login') }}" class="btn-primary-outline" style="width: 100%; display: block; text-align: center; background-color: #f3f4f6; border-color: #d1d5db; color: #6b7280;">
-                        Login untuk Memesan
-                    </a>
-                @endauth
-              </div>
+                </div>
+                
+                {{-- DESKRIPSI --}}
+                <p class="menu-desc">{{ Str::limit($item->description, 100) }}</p>
+                
+                {{-- TOMBOL AKSI --}}
+                <div class="order-area">
+                    @auth
+                        @if($item->availability_status != 'sold_out')
+                            <form action="{{ route('cart.add', $item->id) }}" method="POST" class="order-form">
+                                @csrf
+                                <input type="number" name="quantity" value="1" min="1" class="qty-input">
+                                <button type="submit" class="btn-pesan">🛒 Pesan</button>
+                            </form>
+                        @else
+                             <button class="btn-habis">Habis Terjual</button>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}" class="btn-login-msg">Login untuk Memesan</a>
+                    @endauth
 
-              {{-- Status Ketersediaan --}}
-              <div style="margin-top: auto;">
-                @if($item->availability_status == 'sold_out')
-                    <span style="background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">Habis</span>
-                @else
-                    <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">Tersedia</span>
-                @endif
-                <small style="color: #666; margin-left: 8px;">{{ $item->category }}</small>
-              </div>
+                    {{-- LABEL STATUS --}}
+                    <div style="margin-top: 10px;">
+                        @if($item->availability_status == 'sold_out')
+                            <span class="status-badge status-soldout">Habis</span>
+                        @else
+                            <span class="status-badge status-available">Tersedia</span>
+                        @endif
+                        <span style="font-size:0.8rem; color:#888; margin-left:5px;">{{ $item->category }}</span>
+                    </div>
+                </div>
 
+              </div>
             </div>
-          </div>
           @empty
-            <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #777;">
                 <h3>Belum ada menu yang tersedia saat ini.</h3>
                 <p>Silakan kembali lagi nanti!</p>
             </div>
           @endforelse
-
         </div>
+
       </div>
     </section>
-  </main>
 
-  <footer class="footer">
-    <div class="container">
-      <p>Dibuat dengan ❤️ untuk para pecinta kuliner.</p>
-      <p class="copyright">&copy; {{ date('Y') }} Nyamaw. All Rights Reserved.</p>
-    </div>
-  </footer>
-
-</body>
-</html>
+@endsection

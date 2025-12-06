@@ -1,57 +1,112 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beri Ulasan - Nyamaw</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --primary: #FF6347; --bg: #fdfaf8; --text: #333; }
-    body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; }
-    .container { max-width: 600px; margin: 0 auto; }
-    .card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
-    h1 { color: var(--primary); margin-bottom: 10px; }
+@extends('layouts.app')
+
+@section('title', 'Beri Ulasan - Nyamaw')
+
+@section('custom-css')
+<style>
+    /* HEADER HALAMAN */
+    .page-header {
+        text-align: center;
+        padding-bottom: 40px;
+        background-color: var(--light);
+    }
+    .page-title {
+        font-family: var(--font-head);
+        font-size: 3rem;
+        color: var(--dark);
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+    .page-subtitle { color: var(--gray); font-size: 1.1rem; }
+
+    /* REVIEW FORM */
+    .review-section {
+        padding: 60px 0 100px;
+        display: flex;
+        justify-content: center;
+    }
+    .review-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+        padding: 40px;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+    }
+
+    /* FORM ELEMENTS */
+    .field { margin-bottom: 25px; text-align: left; }
+    .field label { display: block; margin-bottom: 10px; font-weight: 700; color: var(--dark); }
     
-    .field { margin-bottom: 20px; text-align: left; }
-    label { display: block; margin-bottom: 8px; font-weight: 600; }
-    select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-    
-    .btn-submit { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
-    .btn-back { display: block; margin-top: 15px; color: #777; text-decoration: none; font-size: 0.9rem; }
-  </style>
-</head>
-<body>
+    .input-select, .input-textarea {
+        width: 100%; padding: 15px;
+        border: 1px solid #ddd; border-radius: 8px;
+        font-family: var(--font-body); font-size: 1rem;
+        outline: none; transition: 0.3s;
+    }
+    .input-select:focus, .input-textarea:focus { border-color: var(--primary); }
 
-<div class="container">
-  <div class="card">
-    <h1>Beri Ulasan</h1>
-    <p>Bagaimana pengalaman Anda dengan pesanan <strong>#{{ $order->id }}</strong>?</p>
+    /* TOMBOL */
+    .btn-submit {
+        width: 100%; background: var(--primary); color: white;
+        padding: 15px; border-radius: 8px; font-weight: 700;
+        text-transform: uppercase; border: none; cursor: pointer;
+        margin-top: 10px; transition: 0.3s;
+    }
+    .btn-submit:hover { background: #e55337; transform: translateY(-2px); }
 
-    <form action="{{ route('reviews.store', $order->id) }}" method="POST">
-        @csrf
-        
-        <div class="field">
-            <label>Rating Bintang</label>
-            <select name="rating_stars" required style="font-size: 1.2rem;">
-                <option value="5">⭐⭐⭐⭐⭐ (Sangat Puas)</option>
-                <option value="4">⭐⭐⭐⭐ (Puas)</option>
-                <option value="3">⭐⭐⭐ (Biasa Saja)</option>
-                <option value="2">⭐⭐ (Kurang)</option>
-                <option value="1">⭐ (Kecewa)</option>
-            </select>
+    .btn-back {
+        display: block; margin-top: 20px;
+        color: var(--gray); text-decoration: underline;
+        font-size: 0.9rem;
+    }
+    .btn-back:hover { color: var(--dark); }
+</style>
+@endsection
+
+@section('content')
+
+    {{-- SPACER (Agar tidak ketimpa navbar) --}}
+    <div style="height: 120px; width: 100%; background: var(--light);"></div>
+
+    {{-- HEADER --}}
+    <section class="page-header">
+      <div class="container">
+        <h1 class="page-title">Beri Ulasan</h1>
+        <p class="page-subtitle">Bagikan pengalaman makan Anda untuk pesanan <strong>#{{ $order->id }}</strong></p>
+      </div>
+    </section>
+
+    {{-- FORMULIR REVIEW --}}
+    <section class="review-section container">
+        <div class="review-card">
+            
+            <form action="{{ route('reviews.store', $order->id) }}" method="POST">
+                @csrf
+                
+                <div class="field">
+                    <label>Berikan Rating Bintang</label>
+                    <select name="rating_stars" class="input-select" required>
+                        <option value="5">⭐⭐⭐⭐⭐ (Sangat Puas)</option>
+                        <option value="4">⭐⭐⭐⭐ (Puas)</option>
+                        <option value="3">⭐⭐⭐ (Biasa Saja)</option>
+                        <option value="2">⭐⭐ (Kurang)</option>
+                        <option value="1">⭐ (Kecewa)</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Tulis Komentar Anda (Opsional)</label>
+                    <textarea name="comment" class="input-textarea" rows="5" placeholder="Ceritakan rasa makanannya, pengirimannya, atau pelayanan kami..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Kirim Ulasan Saya</button>
+            </form>
+
+            <a href="{{ route('orders.history') }}" class="btn-back">Kembali ke Riwayat</a>
         </div>
+    </section>
 
-        <div class="field">
-            <label>Komentar Anda (Opsional)</label>
-            <textarea name="comment" rows="4" placeholder="Ceritakan rasa makanannya..."></textarea>
-        </div>
-
-        <button type="submit" class="btn-submit">Kirim Ulasan</button>
-    </form>
-
-    <a href="{{ route('orders.history') }}" class="btn-back">Kembali</a>
-  </div>
-</div>
-
-</body>
-</html>
+@endsection

@@ -1,345 +1,249 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nyamaw - Cita Rasa Otentik Rumahan</title>
+@section('title', 'Nyamaw - Taste of Home')
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-
-  <style>
-    /* =================================
-       PENGATURAN DASAR & SKEMA WARNA
-       ================================= */
-    :root {
-      --primary-color: #FF6347;
-      /* Tomato */
-      --secondary-color: #333333;
-      /* Dark Gray */
-      --bg-color: #fdfaf8;
-      /* Soft Cream */
-      --text-color: #4a4a4a;
-      --card-bg: #ffffff;
-      --font-primary: 'Poppins', sans-serif;
-      --font-secondary: 'Playfair Display', serif;
-      --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-      --radius: 12px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: var(--font-primary);
-      background: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.7;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    h1,
-    h2,
-    h3 {
-      font-family: var(--font-secondary);
-      color: var(--secondary-color);
-    }
-
-    /* =================================
-       NAVBAR
-       ================================= */
+@section('custom-css')
+<style>
+    /* === 1. PERBAIKAN NAVBAR (KHUSUS HALAMAN HOME) === */
+    /* Kita timpa style navbar default agar transparan di Home */
     .navbar {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
-      padding: 16px 0;
-      border-bottom: 1px solid #eee;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+        background: transparent !important; /* Transparan agar menyatu dengan Hero */
+        box-shadow: none !important;
+        position: absolute; /* Absolute agar menumpuk di atas Hero */
+        top: 0; left: 0; width: 100%;
+        border-bottom: none !important;
+        padding-top: 30px; /* Jarak dari atas lebih lega */
+    }
+    
+    /* Saat discroll, navbar akan kembali putih (diatur oleh JS di app.blade.php) */
+    .navbar.scrolled {
+        background: white !important;
+        position: fixed;
+        padding-top: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
     }
 
-    .navbar .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    /* Warna Teks Navbar di Home (Putih saat di atas Hero) */
+    .navbar:not(.scrolled) .nav-link,
+    .navbar:not(.scrolled) .logo, 
+    .navbar:not(.scrolled) .welcome-text {
+        color: white !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Shadow agar terbaca */
+    }
+    
+    /* Logo Span (Oren) tetap oren */
+    .navbar:not(.scrolled) .logo span { color: var(--primary) !important; }
+
+    /* Tombol-tombol di navbar saat transparan */
+    .navbar:not(.scrolled) .btn-primary-outline {
+        border-color: white !important;
+        color: white !important;
+    }
+    .navbar:not(.scrolled) .btn-primary-outline:hover {
+        background: white !important;
+        color: var(--primary) !important;
     }
 
-    .navbar-brand {
-      font-family: var(--font-secondary);
-      font-size: 1.8rem;
-      text-decoration: none;
-      color: var(--primary-color);
+
+    /* === 2. HERO SECTION DENGAN BACKGROUND GAMBAR === */
+    .hero-section {
+        /* Ganti 'login-bg.jpg' dengan nama file Anda di public/img */
+        background-image: url('{{ asset("img/bg-home.png") }}'); 
+        background-size: cover;
+        background-position: center;
+        height: 100vh; /* Full Layar */
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        text-align: center;
+        color: white;
+        margin-top: 0; /* Reset margin */
     }
 
-    .navbar-nav {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      gap: 24px;
+    /* Overlay Gelap (Wajib agar tulisan terbaca) */
+    .hero-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); /* Gelap 60% */
+        z-index: 1;
     }
 
-    .nav-link {
-      text-decoration: none;
-      color: var(--text-color);
-      font-weight: 600;
-      transition: color 0.2s;
+    .hero-content {
+        position: relative; z-index: 2;
+        max-width: 900px;
+        padding: 20px;
+        padding-top: 80px; /* Kompensasi navbar */
     }
 
-    .nav-link:hover,
-    .nav-link.active {
-      color: var(--primary-color);
+    .hero-title {
+        font-family: var(--font-head);
+        font-size: 5rem; /* Sangat Besar & Mewah */
+        font-weight: 900;
+        color: white;
+        margin-bottom: 20px;
+        line-height: 1.1;
+        text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .hero-title span { color: var(--primary); font-style: italic; }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: #f0f0f0;
+        margin: 0 auto 40px;
+        font-weight: 300;
+        max-width: 700px;
     }
 
-    .navbar-auth {
-      display: flex;
-      align-items: center;
-      gap: 16px;
+    /* Tombol Hero Besar */
+    .btn-hero {
+        background: var(--primary);
+        color: white;
+        padding: 18px 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-radius: 50px;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.3s;
+        border: 2px solid var(--primary);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .btn-hero:hover {
+        background: transparent;
+        color: white;
+        transform: translateY(-3px);
     }
 
-    .welcome-text {
-      font-weight: 600;
-      color: var(--text-color);
-    }
 
-    .btn-primary-outline {
-      background: transparent;
-      color: var(--primary-color);
-      border: 2px solid var(--primary-color);
-      padding: 8px 20px;
-      text-decoration: none;
-      border-radius: 50px;
-      font-weight: 600;
-      transition: all 0.2s;
-      display: inline-block;
-      cursor: pointer;
-      /* Tambahan agar kursor berubah saat hover */
+    /* === 3. MENU FAVORIT (RAPIG & BERSIH) === */
+    .menu-section { padding: 100px 0; background: white; }
+    
+    .section-header { text-align: center; margin-bottom: 60px; }
+    .section-title { 
+        font-family: var(--font-head); 
+        font-size: 3rem; 
+        color: var(--secondary-color); 
+        margin-bottom: 10px;
     }
-
-    .btn-primary-outline:hover {
-      background: var(--primary-color);
-      color: #fff;
-    }
-
-    /* =================================
-       HERO SECTION
-       ================================= */
-    .hero {
-      text-align: center;
-      padding: 100px 0;
-    }
-
-    .hero h1 {
-      font-size: 3.5rem;
-      line-height: 1.2;
-      margin: 0 0 16px 0;
-    }
-
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: 0 auto 32px auto;
-      color: #777;
-    }
-
-    .hero img {
-      width: 100%;
-      max-width: 800px;
-      margin-top: 48px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    /* =================================
-       FEATURED MENU SECTION
-       ================================= */
-    .featured-menu {
-      padding: 80px 0;
-      text-align: center;
-    }
-
-    .featured-menu h2 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-
-    .featured-menu p.subtitle {
-      color: #777;
-      margin-bottom: 48px;
-    }
-
+    
     .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 32px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
     }
-
+    
     .menu-card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      text-align: left;
-      transition: transform 0.3s;
-      display: flex;
-      flex-direction: column;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        border: 1px solid #eee;
+        display: flex; flex-direction: column;
     }
-
-    .menu-card:hover {
-      transform: translateY(-5px);
+    .menu-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    
+    .menu-img { width: 100%; height: 250px; object-fit: cover; }
+    .menu-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+    
+    .menu-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; color: var(--secondary-color); }
+    
+    .menu-rating { 
+        color: #f59e0b; margin-bottom: 15px; font-weight: 600; font-size: 0.9rem; 
+        display: flex; align-items: center; gap: 5px;
     }
-
-    .menu-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
+    
+    .menu-desc { color: #666; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.6; flex-grow: 1; }
+    
+    .menu-footer { 
+        display: flex; justify-content: space-between; align-items: center; 
+        margin-top: auto; border-top: 1px solid #f9f9f9; padding-top: 20px;
     }
-
-    .menu-card-body {
-      padding: 24px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
+    .menu-price { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+    
+    .btn-pesan-mini {
+        background: transparent; border: 2px solid var(--primary);
+        color: var(--primary); padding: 8px 20px; border-radius: 50px;
+        font-weight: 600; text-decoration: none; transition: 0.2s;
     }
+    .btn-pesan-mini:hover { background: var(--primary); color: white; }
 
-    .menu-card h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.4rem;
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .hero-title { font-size: 3.5rem; }
+        .hero-section { height: auto; min-height: 100vh; padding: 100px 0; }
+        .navbar { background: white !important; position: fixed; } /* Di HP navbar putih aja biar aman */
+        .navbar:not(.scrolled) .nav-link, .navbar:not(.scrolled) .logo { color: var(--dark) !important; text-shadow: none; }
     }
+</style>
+@endsection
 
-    .menu-card .description {
-      color: #666;
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-      flex-grow: 1;
-    }
+@section('content')
 
-    .menu-card .price {
-      font-weight: 700;
-      color: var(--primary-color);
-      font-size: 1.2rem;
-      display: block;
-      margin-bottom: 16px;
-    }
-
-    /* =================================
-       FOOTER
-       ================================= */
-    .footer {
-      background: var(--secondary-color);
-      color: #fff;
-      text-align: center;
-      padding: 48px 0;
-    }
-
-    .footer p {
-      margin: 0;
-    }
-
-    .footer .copyright {
-      opacity: 0.7;
-      margin-top: 8px;
-      font-size: 0.9rem;
-    }
-  </style>
-</head>
-
-<body>
-
-  <nav class="navbar">
-    <div class="container">
-      <a href="{{ route('home') }}" class="navbar-brand">Nyamaw 🐾</a>
-      <ul class="navbar-nav">
-        <li><a href="{{ route('home') }}" class="nav-link active">Home</a></li>
-        <li><a href="{{ route('menu') }}" class="nav-link">Menu</a></li>
-        @auth
-        <li><a href="{{ route('orders.history') }}" class="nav-link">Riwayat</a></li>
-        @endauth
-      </ul>
-      <div class="navbar-auth">
-        @auth
-        {{-- Tombol Keranjang --}}
-        <a href="{{ route('cart') }}" class="btn-primary-outline" style="position: relative; margin-right: 8px;">
-          🛒 <span style="font-size: 0.9rem;">{{ count((array) session('cart')) }}</span>
-        </a>
-
-        <span class="welcome-text">Halo, {{ Auth::user()->name }}</span>
-
-        {{-- TOMBOL LOGOUT DIPERBAIKI (Konsisten dengan Menu) --}}
-        <form action="{{ route('logout') }}" method="POST" style="margin:0;">
-          @csrf
-          <button type="submit" class="btn-primary-outline">Logout</button>
-        </form>
-        @else
-        <a href="{{ route('login') }}" class="nav-link" style="font-weight:600;">Login</a>
-        <a href="{{ route('register') }}" class="btn-primary-outline">Register</a>
-        @endauth
-      </div>
+    {{-- HERO SECTION (GAMBAR BACKGROUND) --}}
+    <div class="hero-section">
+        <div class="hero-overlay"></div> {{-- Lapisan Gelap --}}
+        
+        <div class="hero-content">
+            {{-- Judul Besar --}}
+            <h1 class="hero-title">Rasa <span>Otentik</span> <br> Masakan ala Rumah</h1>
+            
+            {{-- Subjudul --}}
+            <p class="hero-subtitle">
+                Rasakan kelezatan masakan rumahan otentik dari Nyamaw. 
+                Dibuat dari bahan segar pilihan, tanpa pengawet, penuh cinta.
+            </p>
+            
+            {{-- Tombol CTA --}}
+            <a href="{{ route('menu') }}" class="btn-hero">LIHAT SEMUA MENU</a>
+        </div>
     </div>
-  </nav>
 
-  <main>
-    {{-- HERO SECTION --}}
-    <section class="hero">
-      <div class="container">
-        <h1>Sajian Lezat, <br>Momen Hangat.</h1>
-        <p>Rasakan kelezatan masakan rumahan otentik dari Nyamaw, dibuat dari bahan-bahan segar pilihan dan resep warisan keluarga.</p>
-
-        <a href="{{ route('menu') }}" class="btn-primary-outline" style="padding: 12px 32px; font-size: 1.1rem;">Lihat Semua Menu &rarr;</a>
-
-        <img src="https://via.placeholder.com/800x500/fde68a/000000?text=Hidangan+Spesial+Nyamaw" alt="Hidangan Spesial Nyamaw">
-      </div>
-    </section>
-
-    {{-- FEATURED MENU SECTION --}}
-    <section class="featured-menu">
-      <div class="container">
-        <h2>Menu Favorit Pelanggan</h2>
-        <p class="subtitle">Pilihan terbaik minggu ini yang wajib kamu coba!</p>
-
-        <div class="menu-grid">
-          {{-- LOOPING DATA REAL DARI DATABASE --}}
-          @forelse($featuredMenus as $item)
-          <div class="menu-card">
-            {{-- Gambar dari Storage --}}
-            <img src="{{ $item->image_url ? asset('storage/' . $item->image_url) : 'https://via.placeholder.com/300x220?text=No+Image' }}"
-              alt="{{ $item->name }}">
-
-            <div class="menu-card-body">
-              <h3>{{ $item->name }}</h3>
-              <p class="description">{{ Str::limit($item->description, 80) }}</p>
-              <span class="price">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
-
-              <a href="{{ route('menu') }}" class="btn-primary-outline" style="text-align: center; display: block;">Pesan Sekarang</a>
-            </div>
-          </div>
-          @empty
-          <div style="grid-column: 1 / -1; padding: 40px; background: #fff; border-radius: 12px;">
-            <p>Belum ada menu unggulan yang ditampilkan.</p>
-            @if(Auth::check() && Auth::user()->role === 'owner')
-            <a href="{{ route('owner.menu.create') }}" class="btn-primary-outline">Tambah Menu Sekarang</a>
-            @endif
-          </div>
-          @endforelse
+    {{-- MENU FAVORIT SECTION --}}
+    <section class="menu-section container">
+        <div class="section-header">
+            <h2 class="section-title">Menu Favorit Pelanggan</h2>
+            <p style="color:#777;">Pilihan terbaik minggu ini yang wajib kamu coba!</p>
         </div>
 
-      </div>
+        <div class="menu-grid">
+            @forelse($featuredMenus as $item)
+                <div class="menu-card">
+                    <a href="{{ route('menu') }}">
+                        <img src="{{ $item->image_url ? asset('storage/' . $item->image_url) : 'https://via.placeholder.com/300' }}" 
+                             class="menu-img" alt="{{ $item->name }}">
+                    </a>
+                    
+                    <div class="menu-body">
+                        <h3 class="menu-title">{{ $item->name }}</h3>
+                        
+                        {{-- Rating --}}
+                        <div class="menu-rating">
+                            @php $rating = $item->getRating(); @endphp
+                            @if($rating > 0)
+                                <span>⭐ {{ $rating }}</span> 
+                                <span style="color:#999; font-weight:normal; font-size:0.8rem;">({{ $item->getReviewCount() }} ulasan)</span>
+                            @else
+                                <span style="color:#999; font-weight:normal;">Belum ada ulasan</span>
+                            @endif
+                        </div>
+
+                        <p class="menu-desc">{{ Str::limit($item->description, 80) }}</p>
+
+                        <div class="menu-footer">
+                            <span class="menu-price">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
+                            <a href="{{ route('menu') }}" class="btn-pesan-mini">Pesan</a>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #777;">
+                    <p>Belum ada menu unggulan yang ditampilkan.</p>
+                </div>
+            @endforelse
+        </div>
     </section>
-  </main>
 
-  <footer class="footer">
-    <div class="container">
-      <p>Dibuat dengan ❤️ untuk para pecinta kuliner.</p>
-      <p class="copyright">&copy; {{ date('Y') }} Nyamaw. All Rights Reserved.</p>
-    </div>
-  </footer>
-
-</body>
-</html>
+@endsection

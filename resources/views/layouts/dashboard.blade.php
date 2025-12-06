@@ -440,7 +440,7 @@
             @endif
 
 
-            <a href="#">Pengaturan</a>
+            
             <a href="{{ route('home') }}">Lihat Situs</a>
         </nav>
 

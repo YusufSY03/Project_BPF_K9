@@ -207,10 +207,10 @@
         <li><a href="{{ route('orders.history') }}" class="nav-link {{ request()->routeIs('orders.history') ? 'active' : '' }}">Riwayat</a></li>
         @endauth
         <li><a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
+        @auth
         <span style="margin-right: 15px; font-weight: 600; color: var(--primary);">
           Halo, {{ Auth::user()->name }}
         </span>
-        @auth
         <li>
           <a href="{{ route('cart') }}" class="cart-btn">
             🛒 <span class="cart-count">{{ count((array) session('cart')) }}</span>

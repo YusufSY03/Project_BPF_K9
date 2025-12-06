@@ -206,7 +206,7 @@
         @auth
         <li><a href="{{ route('orders.history') }}" class="nav-link {{ request()->routeIs('orders.history') ? 'active' : '' }}">Riwayat</a></li>
         @endauth
-        <li><a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">About</a></li>
+        <li><a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">Tentang</a></li>
         @auth
         <span style="margin-right: 15px; font-weight: 600; color: var(--primary);">
           Halo, {{ Auth::user()->name }}
@@ -219,7 +219,7 @@
         <li>
           <form action="{{ route('logout') }}" method="POST" style="display:inline;">
             @csrf
-            <button type="submit" style="background:none; border:none; cursor:pointer; font-weight:600; color:var(--primary);">LOGOUT</button>
+            <button type="submit" style="background:none; border:none; cursor:pointer; font-weight:600; color:var(--primary);">KELUAR</button>
           </form>
         </li>
         @else

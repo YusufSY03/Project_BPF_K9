@@ -1,461 +1,268 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="{{ asset('img/logo.png') }}" type="image/png">
-    <title>@yield('title') | Nyamaw Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@yield('title') | Nyamaw Dashboard</title>
 
-    <style>
-        :root {
-            --bg: #f3f4f6;
-            --card: #ffffff;
-            --text: #111827;
-            --muted: #6b7280;
-            --primary: #3b82f6;
-            --danger: #ef4444;
-            --success: #10b981;
-            --radius: 10px;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
+  {{-- 1. ICON & FONT (SAMA DENGAN HALAMAN PUBLIK) --}}
+  <link rel="icon" href="{{ asset('img/logo.png') }}" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
 
-        * {
-            box-sizing: border-box;
-        }
+  {{-- 2. CSS VARIABLES (SAMA DENGAN HALAMAN PUBLIK) --}}
+  <style>
+    :root {
+      --primary: #FF4500; /* Oranye Nyamaw */
+      --dark: #121212;    /* Hitam Pekat */
+      --light: #f8f5f2;   /* Background Cream Tipis */
+      --white: #ffffff;
+      --gray: #888888;
+      --sidebar-width: 260px;
+      
+      --font-body: 'Poppins', sans-serif;
+      --font-head: 'Playfair Display', serif;
+      
+      --radius: 12px;
+      --shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
 
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            display: flex;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .sidebar {
-            width: 240px;
-            background: #1f2937;
-            color: #e5e7eb;
-            padding: 24px;
-            height: 100vh;
-            position: fixed;
-        }
+    body { 
+      font-family: var(--font-body); 
+      background-color: var(--light); 
+      color: var(--dark); 
+      display: flex; 
+      min-height: 100vh;
+    }
 
-        .main-content {
-            margin-left: 240px;
-            width: calc(100% - 240px);
-            padding: 24px;
-        }
+    /* === 3. SIDEBAR (GAYA DARK ELEGANT) === */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--dark); /* Hitam Pekat */
+      color: var(--white);
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+      z-index: 100;
+    }
 
-        .sidebar-header {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 24px;
-        }
+    .sidebar-header {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    .sidebar-header span { color: var(--primary); }
 
-        .sidebar-nav a {
-            display: block;
-            color: #d1d5db;
-            text-decoration: none;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            transition: background 0.2s;
-        }
+    .sidebar-nav {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-        .sidebar-nav a.active,
-        .sidebar-nav a:hover {
-            background: #4b5563;
-            color: #fff;
-        }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
 
-        .sidebar-footer {
-            position: absolute;
-            bottom: 24px;
-        }
+    /* Efek Hover & Active di Sidebar */
+    .sidebar-nav a:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+      padding-left: 25px; /* Efek geser sedikit */
+    }
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
+    .sidebar-nav a.active {
+      background: var(--primary); /* Oranye */
+      color: var(--white);
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);
+    }
 
-        .header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
+    .sidebar-footer {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+    }
 
-        .btn {
-            display: inline-block;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 14px;
-            text-decoration: none;
-            cursor: pointer;
-            font-weight: 600;
-        }
+    /* === 4. MAIN CONTENT === */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex-grow: 1;
+      padding: 40px;
+      width: calc(100% - var(--sidebar-width));
+    }
 
-        .btn-danger {
-            background: var(--danger);
-        }
+    /* Header Halaman */
+    .header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-end; 
+      margin-bottom: 30px; 
+    }
+    .header h1 { 
+      font-family: var(--font-head); 
+      font-size: 2.5rem; 
+      color: var(--dark); 
+      margin-bottom: 5px;
+    }
+    .header p { color: var(--gray); font-size: 1rem; }
 
-        .btn-success {
-            background: var(--success);
-        }
+    /* === 5. KOMPONEN CARD (KARTU) === */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 25px;
+      box-shadow: var(--shadow);
+      border: 1px solid #eee;
+      margin-bottom: 24px;
+    }
 
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-        }
+    /* Grid Statistik (4 Kolom) */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
 
-        .status-message {
-            padding: 16px;
-            background: var(--success);
-            color: #fff;
-            border-radius: var(--radius);
-            margin-bottom: 24px;
-            box-shadow: var(--shadow);
-        }
+    .card-title {
+      font-size: 0.85rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .card-value {
+      font-family: var(--font-head);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin: 0;
+    }
 
-        .error-message {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            background-color: #fee2e2;
-            color: #b91c1c;
-        }
+    .card-change { margin-top: 10px; font-size: 0.85rem; color: var(--gray); }
 
-        .user-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    /* === 6. BUTTONS === */
+    .btn { 
+      display: inline-block; padding: 10px 20px; 
+      border-radius: 6px; text-decoration: none; 
+      font-weight: 600; font-size: 0.9rem; transition: 0.2s; border: none; cursor: pointer;
+    }
+    .btn-success { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(255,69,0,0.2); }
+    .btn-success:hover { background: #e53e00; transform: translateY(-2px); }
+    
+    .btn-danger { background: #ef4444; color: white; width: 100%; text-align: center; }
+    .btn-danger:hover { background: #dc2626; }
 
-        .user-table th,
-        .user-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left;
-        }
+    .btn-edit { background: #f3f4f6; color: var(--dark); }
+    .btn-edit:hover { background: #e5e7eb; }
+    
+    .btn-delete { background: #fee2e2; color: #b91c1c; }
+    .btn-delete:hover { background: #fecaca; }
 
-        .user-table th {
-            background-color: #f9fafb;
-            font-weight: 600;
-        }
+    /* === 7. TABEL === */
+    .user-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .user-table th { 
+        text-align: left; padding: 15px; 
+        background: #f9fafb; color: var(--gray); 
+        font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 1px solid #eee;
+    }
+    .user-table td { padding: 15px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+    .user-table tr:last-child td { border-bottom: none; }
 
-        .user-table .badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+    .badge { padding: 6px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    
+    /* Pagination Custom */
+    .custom-pagination nav svg { height: 20px; width: 20px; }
+    .custom-pagination nav .flex { display: flex; align-items: center; gap: 5px; }
+    .custom-pagination nav span, .custom-pagination nav a { 
+        padding: 6px 12px; border: 1px solid #eee; border-radius: 6px; 
+        text-decoration: none; color: var(--dark); font-size: 0.9rem;
+    }
+    .custom-pagination nav span[aria-current="page"] {
+        background-color: var(--primary); color: white; border-color: var(--primary);
+    }
 
-        .badge.role-owner {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge.role-admin {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge.role-user {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        .action-buttons a,
-        .action-buttons button {
-            margin-right: 8px;
-            text-decoration: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-
-        .btn-edit {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .btn-delete {
-            background: #fee2e2;
-            color: #991b1b;
-            border: none;
-            cursor: pointer;
-        }
-
-        .form-grid {
-            max-width: 700px;
-        }
-
-        .field {
-            margin-bottom: 20px;
-        }
-
-        .field label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        /* GRID DASHBOARD YANG LEBIH RAPI */
-        .card-grid {
-            display: grid;
-            /* Membuat 4 kolom otomatis yang responsive */
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            /* Jarak antar kartu lebih rapat */
-            margin-bottom: 24px;
-        }
-
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-            /* Hapus display:flex dari sini agar tabel tidak berantakan */
-        }
-
-        .card-grid .card {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
-            transition: transform 0.2s;
-        }
-
-        .card-grid .card:hover {
-            transform: translateY(-2px);
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            /* Efek hover sedikit */
-        }
-
-        .card-title {
-            font-size: 0.9rem;
-            /* Font judul lebih kecil & elegan */
-            color: var(--muted);
-            margin: 0 0 10px 0;
-            font-weight: 600;
-            text-transform: uppercase;
-            /* Huruf besar semua agar tegas */
-            letter-spacing: 0.5px;
-        }
-
-        .card-value {
-            font-size: 1.8rem;
-            /* Angka besar tapi tidak raksasa */
-            font-weight: 700;
-            margin: 0;
-            line-height: 1.2;
-        }
-
-        .card-change {
-            margin-top: 12px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .input,
-        .select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1rem;
-            background: #fff;
-        }
-
-        .input:focus,
-        .select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .note {
-            font-size: 0.9rem;
-            color: var(--muted);
-            margin-top: 8px;
-        }
-
-        /* ... CSS form yang lama ... */
-
-        /* === TAMBAHAN CSS UNTUK FORM SEARCH & FILTER === */
-        .search-filter-container {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            align-items: center;
-            padding: 16px;
-            /* Tambahan padding agar tidak mepet */
-        }
-
-        /* Memperbaiki tampilan input dan select agar sejajar */
-        .search-filter-container .input,
-        .search-filter-container .select {
-            margin-bottom: 0;
-            /* Hapus margin bawah default form */
-            height: 42px;
-            /* Samakan tinggi */
-        }
-
-        /* Tombol Cari agar lebih terlihat */
-        .btn-search {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0 20px;
-            height: 42px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-reset {
-            background: #e5e7eb;
-            color: var(--text);
-            text-decoration: none;
-            border-radius: 8px;
-            padding: 0 20px;
-            height: 42px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* === STYLE PAGINATION CUSTOM === */
-        /* Memperbaiki tampilan pagination bawaan Laravel/Bootstrap */
-
-        /* Hapus icon SVG raksasa jika masih ada sisa */
-        nav svg {
-            display: none;
-        }
-
-        /* Container pagination */
-        .pagination {
-            display: flex;
-            padding-left: 0;
-            list-style: none;
-            gap: 5px;
-            /* Jarak antar kotak */
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        /* Kotak nomor/tombol */
-        .page-link {
-            position: relative;
-            display: block;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            color: var(--text);
-            text-decoration: none;
-            background-color: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        /* Efek Hover (saat mouse lewat) */
-        .page-link:hover {
-            background-color: #f3f4f6;
-            color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        /* Halaman yang Sedang Aktif */
-        .page-item.active .page-link {
-            z-index: 3;
-            color: #fff;
-            background-color: var(--primary);
-            /* Warna Biru Dashboard */
-            border-color: var(--primary);
-        }
-
-        /* Tombol Mati (Disabled) - misal: di halaman 1, tombol 'Prev' mati */
-        .page-item.disabled .page-link {
-            color: #9ca3af;
-            pointer-events: none;
-            background-color: #f9fafb;
-            border-color: #e5e7eb;
-        }
-
-        /* Sembunyikan teks ribet "Showing 1 to 10..." dari layout default jika mengganggu */
-        .hidden.sm\:flex-1.sm\:flex.sm\:items-center.sm\:justify-between {
-            display: none;
-        }
-
-        /* Tampilkan hanya navigasi nomornya saja */
-        div[role="navigation"]>div:nth-child(2) {
-            display: flex;
-            justify-content: center;
-        }
-    </style>
+    /* Search Filter */
+    .search-filter-container { display: flex; gap: 15px; flex-wrap: wrap; }
+    .input, .select { 
+        padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; 
+        font-family: var(--font-body); font-size: 0.95rem; outline: none;
+    }
+    .input:focus, .select:focus { border-color: var(--primary); }
+  </style>
 </head>
-
 <body>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            {{ Auth::user()->role === 'admin' ? 'Admin Panel' : 'Owner Panel' }}
-        </div>
+  {{-- SIDEBAR --}}
+  <aside class="sidebar">
+    <div class="sidebar-header">Nya<span>maw</span>.</div>
+    
+    <nav class="sidebar-nav">
+      {{-- Link Dashboard --}}
+      <a href="{{ Auth::user()->role === 'admin' ? route('admin') : route('owner') }}" 
+         class="{{ request()->routeIs('admin', 'owner') ? 'active' : '' }}">
+         📊 Dashboard
+      </a>
+      
+      {{-- Pesanan Masuk --}}
+      <a href="{{ route('orders.index') }}" 
+         class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">
+         📦 Pesanan Masuk
+      </a>
 
-        <nav class="sidebar-nav">
-            <a href="{{ Auth::user()->role === 'admin' ? route('admin') : route('owner') }}"
-                class="{{ request()->routeIs('admin', 'owner') ? 'active' : '' }}">
-                Dashboard
-            </a>
-            {{-- Link Pesanan Masuk (BARU) --}}
-            <a href="{{ route('orders.index') }}"
-                class="{{ request()->routeIs('orders.*') ? 'active' : '' }}">
-                Pesanan Masuk
-            </a>
+      {{-- Link Khusus Owner --}}
+      @if (Auth::user()->role === 'owner')
+        <a href="{{ route('owner.menu.index') }}" 
+           class="{{ request()->routeIs('owner.menu.*') ? 'active' : '' }}">
+           🍽️ Manajemen Menu
+        </a>
+      @endif
+      
+      {{-- Manajemen User (Admin & Owner) --}}
+      <a href="{{ route('users.index') }}" 
+         class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
+         👥 Manajemen User
+      </a>
 
-            <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
-                Manajemen User
-            </a>
-            {{-- Tampilkan HANYA jika role-nya owner --}}
-            @if (Auth::user()->role === 'owner')
-            <a href="{{ route('owner.menu.index') }}"
-                class="{{ request()->routeIs('owner.menu.*') ? 'active' : '' }}">
-                Manajemen Menu
-            </a>
-            @endif
+      {{-- Link Balik ke Web --}}
+      <a href="{{ route('home') }}" target="_blank" style="margin-top: 20px; border: 1px solid rgba(255,255,255,0.2);">
+         🌐 Lihat Website
+      </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button class="btn btn-danger" style="width:100%;">LOGOUT</button>
+      </form>
+    </div>
+  </aside>
 
-
-            
-            <a href="{{ route('home') }}">Lihat Situs</a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button class="btn btn-danger" style="width:100%;">Logout</button>
-            </form>
-        </div>
-    </aside>
-
-    <main class="main-content">
-        @yield('content')
-    </main>
-
+  {{-- MAIN CONTENT --}}
+  <main class="main-content">
+    @yield('content')
+  </main>
+  
 </body>
-
 </html>

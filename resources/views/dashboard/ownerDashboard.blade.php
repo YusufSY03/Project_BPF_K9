@@ -139,8 +139,8 @@
     {{-- HEADER --}}
     <div class="dashboard-header">
         <div>
-            <h2>Analytics</h2>
-            <p style="color: var(--text-muted); margin-top: 5px;">Ringkasan performa restoran hari ini.</p>
+            <h2>Analisa</h2>
+            <p style="color: var(--text-muted); margin-top: 5px;">Analisa performa restoran.</p>
         </div>
         <button style="background: white; border: 1px solid #ddd; padding: 10px 20px; border-radius: 30px; font-weight: 600;">
             📅 {{ date('d M Y') }}

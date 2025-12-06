@@ -50,7 +50,7 @@
           <th>Metode</th>
           <th>Status</th>
           <th>Tanggal</th>
-          <th>Aksi</th> {{-- KOLOM INI YANG KEMARIN HILANG --}}
+          <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
@@ -73,7 +73,6 @@
             </td>
             <td>{{ $order->created_at->format('d M Y H:i') }}</td>
             <td>
-                {{-- TOMBOL INI YANG AKAN MEMBUKA HALAMAN DETAIL --}}
                 <a href="{{ route('orders.show', $order->id) }}" class="btn-edit" style="text-decoration:none; font-size: 0.9rem;">
                     Lihat Detail
                 </a>
@@ -89,22 +88,85 @@
       </tbody>
     </table>
 
-    {{-- Pagination --}}
-    <div class="custom-pagination" style="margin-top: 20px; display: flex; justify-content: center;">
-        {{ $orders->links() }} 
+    {{-- PAGINATION --}}
+    <div class="custom-pagination">
+        {{ $orders->links('pagination::bootstrap-5') }} 
     </div>
   </div>
 
   <style>
+      /* CSS SEARCH & FILTER */
       .search-filter-container { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 16px; }
       .search-filter-container .input, .search-filter-container .select { margin-bottom: 0; height: 42px; }
       .btn-search { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0 20px; height: 42px; font-weight: 600; cursor: pointer; }
       .btn-reset { background: #e5e7eb; color: var(--text); text-decoration: none; border-radius: 8px; padding: 0 20px; height: 42px; font-weight: 600; display: inline-flex; align-items: center; }
       
-      .custom-pagination nav svg { height: 20px; width: 20px; }
-      .custom-pagination nav .flex { display: flex; align-items: center; gap: 10px; }
-      .custom-pagination nav span, .custom-pagination nav a { padding: 8px 12px; border: 1px solid #eee; border-radius: 4px; text-decoration: none; color: var(--text-color); }
-      .custom-pagination nav span[aria-current="page"] { background-color: var(--primary); color: white; border-color: var(--primary); }
+      /* === CSS PAGINATION FIXED === */
+      .custom-pagination {
+          margin-top: 20px;
+          display: flex;
+          justify-content: center;
+      }
+      
+      /* Sembunyikan teks "Showing 1 to 10 of..." agar bersih */
+      .custom-pagination .d-none.d-sm-flex > div:first-child {
+          display: none;
+      }
+      
+      /* Pastikan container pagination di tengah */
+      .custom-pagination .d-none.d-sm-flex {
+          justify-content: center;
+          width: 100%;
+      }
+
+      /* Style Kotak Angka */
+      .pagination {
+          display: flex;
+          padding-left: 0;
+          list-style: none;
+          gap: 5px;
+          margin-bottom: 0;
+      }
+      
+      .page-link {
+          position: relative;
+          display: block;
+          padding: 8px 14px;
+          font-size: 0.9rem;
+          color: var(--text);
+          text-decoration: none;
+          background-color: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 6px;
+          transition: all 0.2s;
+          font-weight: 600;
+      }
+
+      .page-link:hover {
+          background-color: #f3f4f6;
+          color: var(--primary);
+          border-color: var(--primary);
+      }
+
+      /* Halaman Aktif */
+      .page-item.active .page-link {
+          z-index: 3;
+          color: #fff;
+          background-color: var(--primary);
+          border-color: var(--primary);
+          box-shadow: 0 2px 5px rgba(255, 69, 0, 0.3);
+      }
+
+      /* Tombol Mati (Disabled) */
+      .page-item.disabled .page-link {
+          color: #9ca3af;
+          pointer-events: none;
+          background-color: #f9fafb;
+          border-color: #e5e7eb;
+      }
+      
+      /* Hilangkan panah SVG aneh jika ada */
+      .custom-pagination svg { width: 15px; height: 15px; }
   </style>
 
 @endsection

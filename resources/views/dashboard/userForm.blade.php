@@ -4,66 +4,128 @@
 
 @section('content')
 
-  <header class="header">
-    <div>
-      <h1>{{ isset($user) ? 'Edit User' : 'Tambah User Baru' }}</h1>
-    </div>
-    <a href="{{ route('users.index') }}" class="btn" style="background:var(--muted);">&larr; Kembali ke Daftar User</a>
-  </header>
+<style>
+    /* KONTAINER FORM */
+    .form-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+        padding: 40px;
+        max-width: 800px;
+        margin-top: 20px;
+    }
 
-  <div class="card">
-    <div class="form-grid">
+    /* HEADER */
+    .page-header {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+    }
+    .page-title {
+        font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--dark-blue); margin: 0;
+    }
+    
+    /* INPUT */
+    .form-group { margin-bottom: 25px; }
+    .form-label {
+        display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #475569;
+    }
+    .form-input, .form-select {
+        width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0;
+        border-radius: 8px; font-size: 1rem; font-family: var(--font-body);
+        transition: 0.3s; outline: none; background: #f8fafc;
+    }
+    .form-input:focus, .form-select:focus {
+        /* PERBAIKAN: Gunakan var(--primary) bukan var(--orange) */
+        border-color: var(--primary); 
+        background: white;
+        box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.1);
+    }
 
-      @if ($errors->any())
-        <div class="error-message">
-          <ul style="margin:0; padding-left: 20px;">
-            @foreach ($errors->all() as $error)
-              <li>{{ $error }}</li>
-            @endforeach
-          </ul>
+    /* TOMBOL (PERBAIKAN WARNA) */
+    .btn-submit {
+        /* PERBAIKAN: Gunakan var(--primary) agar tombol langsung muncul */
+        background: var(--primary); 
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .btn-submit:hover { background: #e53e00; transform: translateY(-2px); }
+
+    .btn-back {
+        background: #f1f5f9; color: #64748b; padding: 10px 20px;
+        border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: 0.2s;
+    }
+    .btn-back:hover { background: #e2e8f0; color: #334155; }
+    
+    .error-list {
+        background: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;
+    }
+</style>
+
+<div>
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">{{ isset($user) ? 'Edit Pengguna' : 'Tambah User Baru' }}</h1>
+            <p style="color:#64748b; margin-top:5px;">Isi formulir di bawah untuk {{ isset($user) ? 'memperbarui data' : 'mendaftarkan' }} pengguna.</p>
         </div>
-      @endif
+        <a href="{{ route('users.index') }}" class="btn-back">← Kembali</a>
+    </div>
 
-      <form action="{{ isset($user) ? route('users.update', $user->id) : route('users.store') }}" method="POST">
-        @csrf
-
-        @if(isset($user))
-          @method('PUT')
+    <div class="form-container">
+        
+        @if ($errors->any())
+            <div class="error-list">
+                <ul style="margin:0; padding-left:20px;">
+                    @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+                </ul>
+            </div>
         @endif
 
-        <div class="field">
-          <label for="name">Nama Lengkap</label>
-          <input id="name" name="name" class="input" value="{{ old('name', $user->name ?? '') }}" required>
-        </div>
-        <div class="field">
-          <label for="email">Alamat Email</label>
-          <input id="email" name="email" class="input" type="email" value="{{ old('email', $user->email ?? '') }}" required>
-        </div>
-        <div class="field">
-          <label for="role">Role</label>
-          <select id="role" name="role" class="select" required>
-            <option value="user" {{ old('role', $user->role ?? '') == 'user' ? 'selected' : '' }}>User</option>
-            <option value="admin" {{ old('role', $user->role ?? '') == 'admin' ? 'selected' : '' }}>Admin</option>
-          </select>
-        </div>
+        <form action="{{ isset($user) ? route('users.update', $user->id) : route('users.store') }}" method="POST">
+            @csrf
+            @if(isset($user)) @method('PUT') @endif
 
-        <div class="field">
-          <label for="password">Password</label>
-          <input id="password" name="password" class="input" type="password" {{ isset($user) ? '' : 'required' }}>
-          @if(isset($user))
-            <p class="note">Kosongkan jika tidak ingin mengubah password.</p>
-          @endif
-        </div>
-        <div class="field">
-          <label for="password_confirmation">Konfirmasi Password</label>
-          <input id="password_confirmation" name="password_confirmation" class="input" type="password">
-        </div>
+            <div class="form-group">
+                <label class="form-label">Nama Lengkap</label>
+                <input type="text" name="name" class="form-input" value="{{ old('name', $user->name ?? '') }}" required placeholder="Contoh: Budi Santoso">
+            </div>
 
-        <button class="btn btn-success" type="submit">
-          {{ isset($user) ? 'Simpan Perubahan' : 'Simpan User Baru' }}
-        </button>
-      </form>
+            <div class="form-group">
+                <label class="form-label">Alamat Email</label>
+                <input type="email" name="email" class="form-input" value="{{ old('email', $user->email ?? '') }}" required placeholder="nama@email.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Role (Peran)</label>
+                <select name="role" class="form-select" required>
+                    <option value="user" {{ old('role', $user->role ?? '') == 'user' ? 'selected' : '' }}>User (Pelanggan)</option>
+                    <option value="admin" {{ old('role', $user->role ?? '') == 'admin' ? 'selected' : '' }}>Admin (Pengelola)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password {{ isset($user) ? '(Kosongkan jika tidak ingin mengubah)' : '' }}</label>
+                <input type="password" name="password" class="form-input" {{ isset($user) ? '' : 'required' }} placeholder="••••••••">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Konfirmasi Password</label>
+                <input type="password" name="password_confirmation" class="form-input" placeholder="••••••••">
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button type="submit" class="btn-submit">
+                    {{ isset($user) ? 'Simpan Perubahan' : 'Simpan User Baru' }}
+                </button>
+            </div>
+
+        </form>
     </div>
-  </div>
+</div>
 
 @endsection

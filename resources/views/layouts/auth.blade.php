@@ -134,7 +134,7 @@
     {{-- BAGIAN KANAN: KONTEN DINAMIS --}}
     <div class="auth-content">
         {{-- Tombol Kembali --}}
-        <a href="{{ route('home') }}" class="back-link">&larr; Back to Home</a>
+        <a href="{{ route('home') }}" class="back-link">&larr; Kembali ke Beranda</a>
 
         {{-- Tempat Formulir Masuk Di Sini --}}
         @yield('content')

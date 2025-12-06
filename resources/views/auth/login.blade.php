@@ -1,12 +1,12 @@
 @extends('layouts.auth')
 
-@section('title', 'Login')
+@section('title', 'Masuk - Nyamaw')
 
 @section('content')
 
     <div class="auth-header">
-        <h1>LOGIN.</h1>
-        <p>Welcome back! Please enter your details.</p>
+        <h1>MASUK.</h1>
+        <p>Selamat datang kembali! Silakan masukkan detail Anda.</p>
     </div>
 
     {{-- Pesan Error --}}
@@ -20,27 +20,26 @@
         @csrf
         
         <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-input" placeholder="example@email.com" value="{{ old('email') }}" required autofocus>
+            <label class="form-label">Alamat Email</label>
+            <input type="email" name="email" class="form-input" placeholder="contoh@email.com" value="{{ old('email') }}" required autofocus>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Password</label>
+            <label class="form-label">Kata Sandi</label>
             <input type="password" name="password" class="form-input" placeholder="••••••••" required>
         </div>
 
-        <button type="submit" class="btn-auth">Sign In</button>
+        <button type="submit" class="btn-auth">Masuk</button>
     </form>
 
-   {{-- Tombol Google --}}
+    {{-- Tombol Google --}}
     <a href="{{ route('redirect.google') }}" class="btn-google">
-        {{-- Panggil google.png dari folder public/img --}}
-        <img src="{{ asset('img/google.png') }}" style="width: 20px;" alt="Google Logo">
-        Sign in with Google
+        <img src="{{ asset('img/google.png') }}" style="width: 20px;" alt="Logo Google">
+        Masuk dengan Google
     </a>
 
     <div class="auth-footer">
-        Don't have an account? <a href="{{ route('register') }}">Create free account</a>
+        Belum punya akun? <a href="{{ route('register') }}">Daftar Gratis</a>
     </div>
 
 @endsection

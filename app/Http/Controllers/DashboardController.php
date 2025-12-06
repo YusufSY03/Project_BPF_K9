@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request; // Pastikan ini ada
+use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\MenuItem; 
@@ -12,15 +12,12 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    /**
-     * Menampilkan Dashboard Admin/Owner
-     */
-    public function index(Request $request) // Tambahkan Request $request disini
+    public function index(Request $request)
     {
-        // --- DATA UMUM ---
+        // --- DATA UMUM (Sama untuk Admin & Owner) ---
         $today = Carbon::today();
         
-        // 1. Total Pendapatan (Hanya status 'completed')
+        // 1. Total Pendapatan (Status 'completed')
         $totalRevenue = Order::where('status', 'completed')->sum('total_amount');
 
         // 2. Pesanan Baru (Pending)
@@ -29,79 +26,36 @@ class DashboardController extends Controller
         // 3. Total Semua Pesanan
         $totalOrders = Order::count();
 
-        // 4. Total Pelanggan & Karyawan
+        // 4. Total Pelanggan
         $totalUsers = User::where('role', 'user')->count();
-        $totalEmployees = User::where('role', 'admin')->count(); 
 
-        // 5. Statistik Hari Ini
-        $menusTotal = MenuItem::count(); 
-        $customersToday = User::where('role', 'user')->whereDate('created_at', $today)->count();
-
-        // --- LOGIKA FILTER GRAFIK (HARIAN / MINGGUAN / BULANAN) ---
-        $filter = $request->query('filter', 'weekly'); // Default 'weekly'
+        // --- LOGIKA FILTER GRAFIK PENJUALAN ---
+        $filter = $request->query('filter', 'weekly'); // Default mingguan
         $chartData = [];
 
         if ($filter == 'daily') {
-            // HARIAN: Tampilkan data per JAM hari ini
-            $data = Order::select(
-                DB::raw('HOUR(created_at) as label'), 
-                DB::raw('SUM(total_amount) as total')
-            )
-            ->where('status', 'completed')
-            ->whereDate('created_at', $today)
-            ->groupBy('label')
-            ->orderBy('label', 'asc')
-            ->get();
-            
-            // Format label jadi "09:00", "10:00", dst
-            $chartData = $data->map(function($item) {
-                return [
-                    'label' => sprintf('%02d:00', $item->label),
-                    'total' => $item->total
-                ];
-            });
+            // Per Jam (Hari Ini)
+            $data = Order::select(DB::raw('HOUR(created_at) as label'), DB::raw('SUM(total_amount) as total'))
+                ->where('status', 'completed')->whereDate('created_at', $today)
+                ->groupBy('label')->orderBy('label', 'asc')->get();
+            $chartData = $data->map(fn($item) => ['label' => sprintf('%02d:00', $item->label), 'total' => $item->total]);
 
         } elseif ($filter == 'monthly') {
-            // BULANAN: Tampilkan data per BULAN tahun ini
-            $data = Order::select(
-                DB::raw('MONTH(created_at) as label'), 
-                DB::raw('SUM(total_amount) as total')
-            )
-            ->where('status', 'completed')
-            ->whereYear('created_at', Carbon::now()->year)
-            ->groupBy('label')
-            ->orderBy('label', 'asc')
-            ->get();
-
-            // Ubah angka bulan (1) jadi nama bulan (Jan)
-            $chartData = $data->map(function($item) {
-                return [
-                    'label' => Carbon::create()->month($item->label)->locale('id')->isoFormat('MMMM'),
-                    'total' => $item->total
-                ];
-            });
+            // Per Bulan (Tahun Ini)
+            $data = Order::select(DB::raw('MONTH(created_at) as label'), DB::raw('SUM(total_amount) as total'))
+                ->where('status', 'completed')->whereYear('created_at', Carbon::now()->year)
+                ->groupBy('label')->orderBy('label', 'asc')->get();
+            $chartData = $data->map(fn($item) => ['label' => Carbon::create()->month($item->label)->isoFormat('MMMM'), 'total' => $item->total]);
 
         } else {
-            // MINGGUAN (Default): 7 Hari Terakhir
-            $data = Order::select(
-                DB::raw('DATE(created_at) as label'), 
-                DB::raw('SUM(total_amount) as total')
-            )
-            ->where('status', 'completed')
-            ->where('created_at', '>=', Carbon::now()->subDays(7))
-            ->groupBy('label')
-            ->orderBy('label', 'asc')
-            ->get();
-
-            $chartData = $data->map(function($item) {
-                return [
-                    'label' => Carbon::parse($item->label)->locale('id')->isoFormat('dddd'), // Senin, Selasa...
-                    'total' => $item->total
-                ];
-            });
+            // Per Hari (7 Hari Terakhir)
+            $data = Order::select(DB::raw('DATE(created_at) as label'), DB::raw('SUM(total_amount) as total'))
+                ->where('status', 'completed')->where('created_at', '>=', Carbon::now()->subDays(7))
+                ->groupBy('label')->orderBy('label', 'asc')->get();
+            $chartData = $data->map(fn($item) => ['label' => Carbon::parse($item->label)->isoFormat('dddd'), 'total' => $item->total]);
         }
 
-        // --- DATA UNTUK GRAFIK STATUS ORDER (Donat) ---
+        // --- DATA STATUS ORDER (GRAFIK DONAT) ---
         $orderStatusData = [
             'pending'    => Order::where('status', 'pending')->count(),
             'processing' => Order::where('status', 'processing')->count(),
@@ -109,40 +63,37 @@ class DashboardController extends Controller
             'cancelled'  => Order::where('status', 'cancelled')->count(),
         ];
 
-        // --- DATA BEST SELLER & LOYAL CUSTOMERS ---
-        $bestSellers = MenuItem::take(3)->get(); 
-        $loyalCustomers = Order::select('user_id', DB::raw('count(*) as total'))
-            ->with('user')
-            ->whereNotNull('user_id')
-            ->groupBy('user_id')
-            ->orderBy('total', 'desc')
-            ->take(3)
-            ->get();
-
-        // --- LOGIKA PEMILIHAN VIEW ---
         $user = Auth::user();
-        
+
+        // --- TAMPILAN ADMIN ---
         if ($user->role === 'admin') {
+            // Admin butuh data pesanan terbaru untuk dipantau
+            $recentOrders = Order::with('user')->orderBy('created_at', 'desc')->take(5)->get();
+
             return view('dashboard.adminDashboard', [
-                'totalRevenue' => $totalRevenue,
-                'pendingOrders' => $pendingOrders,
-                'totalOrders' => $totalOrders,
-                'totalUsers' => $totalUsers,
-                'recentOrders' => Order::with('user')->latest()->take(5)->get()
+                'totalRevenue'    => $totalRevenue,
+                'pendingOrders'   => $pendingOrders,
+                'totalOrders'     => $totalOrders,
+                'totalUsers'      => $totalUsers,
+                'salesChartData'  => $chartData,       // Data Grafik Batang
+                'orderStatusData' => $orderStatusData, // Data Grafik Donat
+                'currentFilter'   => $filter,
+                'recentOrders'    => $recentOrders     // Tabel Aktivitas
             ]);
         }
 
+        // --- TAMPILAN OWNER (Sudah ada sebelumnya) ---
         return view('dashboard.ownerDashboard', [
             'user' => $user,
             'totalRevenue' => $totalRevenue,
-            'menusTotal' => $menusTotal,
-            'customersToday' => $customersToday,
-            'totalEmployees' => $totalEmployees,
-            'salesChartData' => $chartData, // Data grafik dinamis sesuai filter
-            'currentFilter' => $filter,     // Kirim filter aktif ke view
+            'menusTotal' => MenuItem::count(),
+            'customersToday' => User::where('role', 'user')->whereDate('created_at', $today)->count(),
+            'totalEmployees' => User::where('role', 'admin')->count(),
+            'salesChartData' => $chartData,
+            'currentFilter' => $filter,
             'orderStatusData' => $orderStatusData, 
-            'bestSellers' => $bestSellers,
-            'loyalCustomers' => $loyalCustomers,
+            'bestSellers' => MenuItem::take(3)->get(), // Owner lihat menu terlaris
+            'loyalCustomers' => [], 
         ]);
     }
 }

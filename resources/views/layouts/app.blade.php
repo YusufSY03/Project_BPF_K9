@@ -223,8 +223,8 @@
           </form>
         </li>
         @else
-        <li><a href="{{ route('login') }}" class="nav-link">Login</a></li>
-        <li><a href="{{ route('register') }}" class="btn-auth">Join Us</a></li>
+        <li><a href="{{ route('login') }}" class="btn-auth">Login</a></li>
+        <li><a href="{{ route('register') }}" class="btn-auth">Sign In</a></li>
         @endauth
       </ul>
     </div>
